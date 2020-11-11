@@ -1,135 +1,127 @@
 import pygame
 import configparser
 
-from pygame_gui.ui_manager import UIManager
-from pygame_gui.elements.ui_text_box import UITextBox
-from pygame_gui.core import IncrementalThreadedResourceLoader
-from pygame_gui import UI_TEXT_BOX_LINK_CLICKED
 from ass1.helpers import *
+import ass1.gui as gui
 
 config = None
-window_size = None
+screen_size = None
 screen = None
+clock = None
+ui_manager = None
+background_surface = None
+top_offset = 50
+left_offset = 50
+output_console_size = (300, 1100)
+output_console_position = (1250, top_offset)
+FPS = 60
+
+voting_schemes = [
+    'Voting for one',
+    'Voting for two',
+    'Veto voting',
+    'Borda voting',
+]
 
 
 def init_settings():
     global config
-    global window_size
+    global screen_size
 
     config = configparser.ConfigParser()
+    config.read_file(open('./config.ini'))
 
     default_config = config['DEFAULT']
 
-    window_size = (default_config['WindowWidth'],
-                   default_config['WindowHeight'])
+    screen_size = (int(default_config['ScreenWidth']),
+                   int(default_config['ScreenHeight']))
 
 
 def init_pygame():
     global screen
-    global window_size
+    global screen_size
+    global clock
+    global background_surface
 
     pygame.init()
     pygame.display.set_caption("Voting scheme")
-    screen = pygame.display.set_mode(window_size)
+    screen = pygame.display.set_mode(screen_size)
 
-    background_surface = pygame.Surface(window_size)
-    background_surface.fill(pygame.Color("#000000"))
+    background_surface = pygame.Surface(screen_size)
+    background_surface.fill(pygame.Color(SPACE_GREY))
+
+    clock = pygame.time.Clock()
+
+
+def init_n_voters_ui():
+    gui.create_label(pygame, ui_manager, position=(left_offset, top_offset - 15 + 75), text='Number of voters',
+                     size=(200, 50))
+    number_votes_input = gui.create_input(pygame, ui_manager,
+                                          size=(150, 30),
+                                          position=(left_offset + 225, top_offset + 75))
+    number_votes_input.set_allowed_characters('numbers')
+    number_votes_input.set_text_length_limit(2)
+    gui.create_button(pygame, ui_manager, text='Randomize number of voters', size=(300, 50),
+                      position=(left_offset + 400, top_offset - 15 + 75))
+
+
+def init_n_preferences_ui():
+    offset = 75
+    gui.create_label(pygame, ui_manager, position=(left_offset, top_offset - 15 + offset + 75),
+                     text='Number of preferences',
+                     size=(200, 50))
+    number_votes_input = gui.create_input(pygame, ui_manager, size=(150, 30),
+                                          position=(left_offset + 225, top_offset + offset + 75))
+    number_votes_input.set_allowed_characters('numbers')
+    number_votes_input.set_text_length_limit(2)
+    gui.create_button(pygame, ui_manager, text='Randomize number of preferences', size=(300, 50),
+                      position=(left_offset + 400, top_offset - 15 + offset + 75))
 
 
 if __name__ == "__main__":
     init_settings()
     init_pygame()
+    ui_manager = gui.init_ui(screen_size)
+    gui.create_text_box(pygame, ui_manager, size=output_console_size, position=output_console_position)
 
+    gui.create_label(pygame, ui_manager, position=(left_offset, top_offset - 15), size=(700, 50), text='Settings')
 
+    # create number of voters ui
+    init_n_voters_ui()
 
+    # # create number of preferences ui
+    init_n_preferences_ui()
 
+    gui.create_label(pygame, ui_manager,
+                     position=(left_offset, 300),
+                     size=(700, 50),
+                     text='Runtime')
 
+    gui.create_dropdown_button(pygame, ui_manager,
+                               opt_list=voting_schemes,
+                               position=(left_offset, 375),
+                               size=(300, 50)
+                               )
+    gui.create_button(pygame, ui_manager,
+                      text='Generate voters table',
+                      position=(left_offset + 400, 375),
+                      size=(300, 50)
+                      )
 
+    running = True
 
+    while running:
+        time_delta = clock.tick(FPS) / 1000.0
 
-loader = IncrementalThreadedResourceLoader()
-clock = pygame.time.Clock()
-ui_manager = UIManager(screen_size, 'data/themes/theme_1.json', resource_loader=loader)
-ui_manager.add_font_paths("Montserrat",
-                          "data/fonts/Montserrat-Regular.ttf",
-                          "data/fonts/Montserrat-Bold.ttf",
-                          "data/fonts/Montserrat-Italic.ttf",
-                          "data/fonts/Montserrat-BoldItalic.ttf")
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
 
-load_time_1 = clock.tick()
-ui_manager.preload_fonts([{'name': 'Montserrat', 'html_size': 4.5, 'style': 'bold'},
-                          {'name': 'Montserrat', 'html_size': 4.5, 'style': 'regular'},
-                          {'name': 'Montserrat', 'html_size': 2, 'style': 'regular'},
-                          {'name': 'Montserrat', 'html_size': 2, 'style': 'italic'},
-                          {'name': 'Montserrat', 'html_size': 6, 'style': 'bold'},
-                          {'name': 'Montserrat', 'html_size': 6, 'style': 'regular'},
-                          {'name': 'Montserrat', 'html_size': 6, 'style': 'bold_italic'},
-                          {'name': 'Montserrat', 'html_size': 4, 'style': 'bold'},
-                          {'name': 'Montserrat', 'html_size': 4, 'style': 'regular'},
-                          {'name': 'Montserrat', 'html_size': 4, 'style': 'italic'},
-                          {'name': 'fira_code', 'html_size': 2, 'style': 'regular'},
-                          {'name': 'fira_code', 'html_size': 2, 'style': 'bold'},
-                          {'name': 'fira_code', 'html_size': 2, 'style': 'bold_italic'}
-                          ])
-loader.start()
-finished_loading = False
-while not finished_loading:
-    finished_loading, progress = loader.update()
-load_time_2 = clock.tick()
-print('Font load time taken:', load_time_2 / 1000.0, 'seconds.')
+            ui_manager.process_events(event)
 
-time_1 = clock.tick()
-# html_text_line = create_large_text_box()
-time_2 = clock.tick()
+        ui_manager.update(time_delta)
 
-htm_text_block_2 = UITextBox('<font face=fira_code size=2 color=#000000><b>Hey, What the heck!</b>'
-                             '<br><br>'
-                             'This is some <a href="test">text</a> in a different box,'
-                             ' hooray for variety - '
-                             'if you want then you should put a ring upon it. '
-                             '<body bgcolor=#990000>What if we do a really long word?</body> '
-                             '<b><i>derp FALALALALALALALXALALALXALALALALAAPaaaaarp gosh'
-                             '</b></i></font>',
-                             pygame.Rect((520, 10), (250, 200)),
-                             manager=ui_manager,
-                             object_id="#text_box_2")
-htm_text_block_2.set_active_effect('typing_appear')
-time_3 = clock.tick()
+        screen.blit(background_surface, (0, 0))
+        ui_manager.draw_ui(screen)
 
-print('Time taken 1st window:', time_2 / 1000.0, 'seconds.')
-print('Time taken 2nd window:', time_3 / 1000.0, 'seconds.')
-
-ui_manager.print_unused_fonts()
-
-running = True
-
-while running:
-    time_delta = clock.tick(60) / 1000.0
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_f:
-                htm_text_block_2.set_active_effect('fade_out')
-            if event.key == pygame.K_k:
-                html_text_line.kill()
-            if event.key == pygame.K_b:
-                html_text_line = create_large_text_box()
-
-        if event.type == pygame.USEREVENT:
-            if event.user_type == UI_TEXT_BOX_LINK_CLICKED:
-                if event.ui_element is htm_text_block_2:
-                    if event.link_target == 'test':
-                        print('clicked test link')
-                else:
-                    print('clicked link in text block 1')
-
-        ui_manager.process_events(event)
-
-    ui_manager.update(time_delta)
-
-    screen.blit(background_surface, (0, 0))
-    ui_manager.draw_ui(screen)
-
-    pygame.display.update()
+        pygame.display.update()
