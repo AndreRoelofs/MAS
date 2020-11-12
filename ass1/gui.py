@@ -12,19 +12,20 @@ def init_ui(screen_size):
                               "data/fonts/Montserrat-Italic.ttf",
                               "data/fonts/Montserrat-BoldItalic.ttf",
                               )
-    ui_manager.preload_fonts([{'name': 'Montserrat', 'html_size': 4.5, 'style': 'bold'},
-                              {'name': 'Montserrat', 'html_size': 4.5, 'style': 'regular'},
-                              {'name': 'Montserrat', 'html_size': 2, 'style': 'regular'},
-                              {'name': 'Montserrat', 'html_size': 2, 'style': 'italic'},
-                              {'name': 'Montserrat', 'html_size': 6, 'style': 'bold'},
-                              {'name': 'Montserrat', 'html_size': 6, 'style': 'regular'},
-                              {'name': 'Montserrat', 'html_size': 6, 'style': 'bold_italic'},
-                              {'name': 'Montserrat', 'html_size': 4, 'style': 'bold'},
-                              {'name': 'Montserrat', 'html_size': 4, 'style': 'regular'},
-                              {'name': 'Montserrat', 'html_size': 4, 'style': 'italic'},
-                              {'name': 'Montserrat', 'point_size': 18, 'style': 'bold_italic'},
-                              {'name': 'Montserrat', 'point_size': 18, 'style': 'regular'},
-                              {'name': 'Montserrat', 'point_size': 18, 'style': 'bold'},
+    font_size_multiplier = screen_size[0] + screen_size[1] / 2500
+    ui_manager.preload_fonts([{'name': 'Montserrat', 'html_size': 4.5 * font_size_multiplier, 'style': 'bold'},
+                              {'name': 'Montserrat', 'html_size': 4.5 * font_size_multiplier, 'style': 'regular'},
+                              {'name': 'Montserrat', 'html_size': 2 * font_size_multiplier, 'style': 'regular'},
+                              {'name': 'Montserrat', 'html_size': 2 * font_size_multiplier, 'style': 'italic'},
+                              {'name': 'Montserrat', 'html_size': 6 * font_size_multiplier, 'style': 'bold'},
+                              {'name': 'Montserrat', 'html_size': 6 * font_size_multiplier, 'style': 'regular'},
+                              {'name': 'Montserrat', 'html_size': 6 * font_size_multiplier, 'style': 'bold_italic'},
+                              {'name': 'Montserrat', 'html_size': 4 * font_size_multiplier, 'style': 'bold'},
+                              {'name': 'Montserrat', 'html_size': 4 * font_size_multiplier, 'style': 'regular'},
+                              {'name': 'Montserrat', 'html_size': 4 * font_size_multiplier, 'style': 'italic'},
+                              {'name': 'Montserrat', 'point_size': int(18 * font_size_multiplier), 'style': 'bold_italic'},
+                              {'name': 'Montserrat', 'point_size': int(18 * font_size_multiplier), 'style': 'regular'},
+                              {'name': 'Montserrat', 'point_size': int(18 * font_size_multiplier), 'style': 'bold'},
                               ])
 
     return ui_manager
