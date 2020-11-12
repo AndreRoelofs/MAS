@@ -52,19 +52,23 @@ def create_button(pygame, ui_manager, text='', position=(30, 20), size=(100, 20)
                     manager=ui_manager)
 
 
-def create_label(pygame, ui_manager, text='', position=(30, 20), size=(100, 20)):
+def create_label(pygame, ui_manager, text='', position=(30, 20), size=(100, 20), container=None):
     label_layout_rect = pygame.Rect(position, size)
     return UILabel(relative_rect=label_layout_rect,
                    text=text,
-                   manager=ui_manager)
+                   manager=ui_manager,
+                   container=container
+                   )
 
 
-def create_input(pygame, ui_manager, position=(30, 20), size=(100, 20)):
+def create_input(pygame, ui_manager, position=(30, 20), size=(100, 20), container=None):
     input_layout_rect = pygame.Rect(position, size)
 
     return UITextEntryLine(
         relative_rect=input_layout_rect,
-        manager=ui_manager)
+        manager=ui_manager,
+        container=container
+    )
 
 
 def create_dropdown_button(pygame, ui_manager, opt_list=['No options'], first_option_index=0, position=(30, 20),
