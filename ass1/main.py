@@ -7,6 +7,8 @@ from pygame_gui.elements import \
     UIScrollingContainer, \
     UIVerticalScrollBar
 from ass1.helpers import *
+from ast import literal_eval
+import numpy as np
 
 import ass1.gui as gui
 
@@ -28,6 +30,11 @@ number_votes_input = None
 number_preferences_input = None
 n_voters = -1
 n_preferences = -1
+preference_vector_input = None
+save_preference_vector_button = None
+response_label = None
+
+preference_vector = []
 
 voting_schemes = [
     'Voting for one',
@@ -85,6 +92,9 @@ def init_settings_ui():
     global number_votes_input
     global randomize_n_preferences_button
     global number_preferences_input
+    global preference_vector_input
+    global save_preference_vector_button
+    global response_label
 
     # init n voters ui
     gui.create_label(pygame, ui_manager, position=(int(left_offset*1.0), int(top_offset*2.2)), text='Number of voters',
@@ -120,6 +130,10 @@ def init_settings_ui():
     save_preference_vector_button = gui.create_button(pygame, ui_manager, text='Save preference vector',
                                                        size=(int(left_offset*6.0), int(top_offset*1.0)),
                                                        position=(int(left_offset*9.0), int(top_offset*6.5)))
+    response_label = gui.create_text_display(pygame,
+                                             ui_manager,
+                                             position=(int(left_offset*1.0), int(top_offset*8)),
+                                             size=(int(left_offset*14.0), int(top_offset*1.2)))
 
 
 
@@ -219,6 +233,27 @@ def create_table(table_container):
     table_container.set_scrollable_area_dimensions((1000, n_voters * vertical_offset))
 
 
+def parse_vector(pref_vec):
+    # Simple check whether it is a 2D array
+    if pref_vec[:2] == '[[' and pref_vec[-2:] == ']]':
+        # Use ast.literal_eval to convert the string to an actual array
+        pv = np.array(literal_eval(pref_vec))
+
+        # Check whether the votes match the amount of preferences
+        if (pv.min() < 0) | (pv.max() > n_preferences):
+            return None
+
+        # Check whether the dimensions fit the amount of voters & preferences
+        if pv.shape[0] == n_voters and pv.shape[1] == n_preferences:
+            # Check for each voter whether he has voted correctly
+            for c, voter in enumerate(pv):
+                if len(voter) == len(set(voter)):
+                    return pv
+                else:
+                    print("Voter {voter} has voted multiple times for a candidate".format(voter=c+1))
+        return None
+
+
 if __name__ == "__main__":
     init_settings()
     init_pygame()
@@ -262,6 +297,22 @@ if __name__ == "__main__":
                             number_preferences_input.set_text('3')
                             print('Setting number of preferences to a default value of 3')
                         create_table(table_container)
+                    if event.ui_element == save_preference_vector_button:
+                        preference_vector_in = preference_vector_input.get_text()
+                        parsed_vector = parse_vector(preference_vector_in)
+                        if parsed_vector is None:
+                            response_label.set_text("Not a correct preference vector")
+                        else:
+                            response_label.set_text("Preference vector parsed!")
+
+
+
+                # Input parsing
+                if event.user_type == pygame_gui.UI_TEXT_ENTRY_FINISHED:
+                    if event.ui_element == number_votes_input:
+                        n_voters = int(event.text)
+                    elif event.ui_element == number_preferences_input:
+                        n_preferences = int(event.text)
 
         ui_manager.update(time_delta)
 

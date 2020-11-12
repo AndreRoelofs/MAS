@@ -45,6 +45,13 @@ def create_text_box(pygame, ui_manager, size=(250, 200), position=(520, 10), fon
                      object_id="#text_box_2")
 
 
+def create_text_display(pygame, ui_manager, size=(250, 100), position=(520, 10), font_size=5):
+    return UILabel(pygame.Rect(position, size),
+                                   "",
+                                   manager=ui_manager,
+                                   object_id='#fps_counter')
+
+
 def create_button(pygame, ui_manager, text='', position=(30, 20), size=(100, 20)):
     button_layout_rect = pygame.Rect(position, size)
 
