@@ -16,11 +16,11 @@ screen = None
 clock = None
 ui_manager = None
 background_surface = None
-top_offset = 50
-left_offset = 50
-output_console_size = (300, 1100)
-output_console_position = (1250, top_offset)
-FPS = 60
+top_offset = None
+left_offset = None
+output_console_size = None
+output_console_position = None
+FPS = None
 randomize_n_voters_button = None
 randomize_n_preferences_button = None
 generate_table_button = None
@@ -40,6 +40,11 @@ voting_schemes = [
 def init_settings():
     global config
     global screen_size
+    global FPS
+    global top_offset
+    global left_offset
+    global output_console_size
+    global output_console_position
 
     config = configparser.ConfigParser()
     config.read_file(open('./config.ini'))
@@ -48,6 +53,15 @@ def init_settings():
 
     screen_size = (int(default_config['ScreenWidth']),
                    int(default_config['ScreenHeight']))
+    FPS = int(default_config['FPS'])
+
+    #offsets
+    top_offset = int(int(default_config['ScreenHeight'])/18)
+    left_offset = int(int(default_config['ScreenWidth'])/32)
+
+    #output console dimension
+    output_console_size = (int(int(default_config['ScreenWidth'])/5),int(default_config['ScreenHeight'])-top_offset)
+    output_console_position = (int(int(default_config['ScreenWidth'])-int(default_config['ScreenWidth'])/5)-left_offset, top_offset)
 
 
 def init_pygame():
