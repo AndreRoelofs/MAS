@@ -23,9 +23,9 @@ def init_ui(screen_size):
                               {'name': 'Montserrat', 'html_size': 4 * font_size_multiplier, 'style': 'bold'},
                               {'name': 'Montserrat', 'html_size': 4 * font_size_multiplier, 'style': 'regular'},
                               {'name': 'Montserrat', 'html_size': 4 * font_size_multiplier, 'style': 'italic'},
-                              {'name': 'Montserrat', 'point_size': int(18 * font_size_multiplier), 'style': 'bold_italic'},
-                              {'name': 'Montserrat', 'point_size': int(18 * font_size_multiplier), 'style': 'regular'},
-                              {'name': 'Montserrat', 'point_size': int(18 * font_size_multiplier), 'style': 'bold'},
+                              {'name': 'Montserrat', 'point_size': 18, 'style': 'bold_italic'},
+                              {'name': 'Montserrat', 'point_size': 18, 'style': 'regular'},
+                              {'name': 'Montserrat', 'point_size': 18, 'style': 'bold'},
                               ])
 
     return ui_manager
