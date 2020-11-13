@@ -34,7 +34,7 @@ preference_vector_input = None
 save_preference_vector_button = None
 response_label = None
 
-preference_vector = []
+preference_vector = None
 
 voting_schemes = [
     'Voting for one',
@@ -219,11 +219,15 @@ def create_table(table_container):
         container.add_element(voter_name_label)
 
         for j in range(n_preferences):
+            voter_pref = str(j+1)
+            if preference_vector is not None:
+                voter_pref = str(preference_vector[i][j])
+
             preference_label = gui.create_label(
                 pygame,
                 ui_manager,
                 size=(left_size, top_size),
-                text=str(j + 1),
+                text=voter_pref,
                 container=table_container,
                 position=(horizontal_offset * (j + 2), vertical_offset * i),
             )
@@ -237,7 +241,9 @@ def parse_vector(pref_vec):
     # Simple check whether it is a 2D array
     if pref_vec[:2] == '[[' and pref_vec[-2:] == ']]':
         # Use ast.literal_eval to convert the string to an actual array
-        pv = np.array(literal_eval(pref_vec))
+        pv = np.array(literal_eval(pref_vec))  # TODO Passing an array with different sizes this throws an error
+        if len(pv.shape) != 2:
+            return None
 
         # Check whether the votes match the amount of preferences
         if (pv.min() < 0) | (pv.max() > n_preferences):
@@ -302,17 +308,20 @@ if __name__ == "__main__":
                         parsed_vector = parse_vector(preference_vector_in)
                         if parsed_vector is None:
                             response_label.set_text("Not a correct preference vector")
+                            preference_vector = None
                         else:
                             response_label.set_text("Preference vector parsed!")
+                            preference_vector = parsed_vector
 
 
 
                 # Input parsing
-                if event.user_type == pygame_gui.UI_TEXT_ENTRY_FINISHED:
-                    if event.ui_element == number_votes_input:
-                        n_voters = int(event.text)
-                    elif event.ui_element == number_preferences_input:
-                        n_preferences = int(event.text)
+                if event.user_type == pygame_gui.UI_TEXT_ENTRY_CHANGED:
+                    if len(event.text) != 0:
+                        if event.ui_element == number_votes_input:
+                            n_voters = int(event.text)
+                        elif event.ui_element == number_preferences_input:
+                            n_preferences = int(event.text)
 
         ui_manager.update(time_delta)
 
