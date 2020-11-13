@@ -37,8 +37,9 @@ class Voter:
         self.vote = [0 for i in range(self.candidates_num)]
         if self.preference is None:
             self.SetPreference()
+        if self.vote_order is None:
             self.SetVotingStrategy()
-            self.GetVote()
+        self.GetVote()
 
     def SetPreference(self):
         self.preference = [i for i in range(self.candidates_num)]
