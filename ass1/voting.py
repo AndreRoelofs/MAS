@@ -9,8 +9,13 @@ class Situation:
         self.candidate_num = candidate_num
         self.candidates = Candidates(self.candidate_num)
         self.voters = [Voter(self.candidates.num) for i in range(self.voter_num)]
+        self.situation = np.zeros((self.voter_num,self.candidate_num))
+        for i in range(self.voter_num):
+            self.situation[i] = self.voters[i].preference
+        self.situation = self.situation.T
+
     def print(self):
-        print("the situation now is \n")
+        print("the situation now is \n{}\n".format(self.situation))
         self.candidates.print()
         for voter in self.voters:
             voter.print()
