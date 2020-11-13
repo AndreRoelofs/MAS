@@ -1,7 +1,7 @@
 from pygame_gui.ui_manager import UIManager
 from pygame_gui.elements import *
 
-from helpers import *
+from ass1.helpers import *
 
 
 def init_ui(screen_size):

@@ -6,11 +6,11 @@ from pygame_gui.core import UIContainer
 from pygame_gui.elements import \
     UIScrollingContainer, \
     UIVerticalScrollBar
-from helpers import *
+from ass1.helpers import *
 from ast import literal_eval
 import numpy as np
 
-import  gui
+import ass1.gui
 
 config = None
 screen_size = None
