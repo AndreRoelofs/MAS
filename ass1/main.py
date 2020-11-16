@@ -423,8 +423,11 @@ if __name__ == "__main__":
                     if len(event.text) != 0:
                         if event.ui_element == number_votes_input:
                             n_voters = int(event.text)
+                            generate_random_preference_matrix()
                         if event.ui_element == number_preferences_input:
                             n_preferences = int(event.text)
+                            generate_random_preference_matrix()
+
                     else:
                         for i, vector_input in enumerate(single_vector_input):
                             if event.ui_element == vector_input:
