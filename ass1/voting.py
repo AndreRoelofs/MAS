@@ -162,6 +162,10 @@ class Situation:
         return result_string
 
     def generate_strategic_voting_output(self):
+
+        if self.voting_strategy == bullet_voting:
+            return self.generate_output()
+
         result_string = "\n\n\nApplying strategy: {}\n".format(self.voting_strategy)
         for option in self.strategic_voting_options:
             v_id, v, O, H, z = option

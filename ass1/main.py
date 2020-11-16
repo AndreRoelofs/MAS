@@ -317,6 +317,33 @@ def random_table():
     return preference_vector
 
 
+def generate_random_preference_matrix():
+    global custom_preference_vector
+    global preference_vector_input
+
+    custom_preference_vector = []
+    voting_scheme = voting_schemes_dropdown.selected_option
+    for i in range(n_voters):
+        if voting_scheme == borda_voting:
+            custom_preference_vector.append(np.random.randint(0, n_preferences, 1, dtype=int).tolist())
+        if voting_scheme == voting_for_one:
+            preference = np.zeros(n_preferences, dtype=int)
+            idx = np.random.choice(n_preferences, 1)
+            preference[idx] = 1
+            custom_preference_vector.append(preference.tolist())
+        if voting_scheme == voting_for_two:
+            preference = np.zeros(n_preferences, dtype=int)
+            idx = np.random.choice(n_preferences, 2, replace=False)
+            preference[idx] = 1
+            custom_preference_vector.append(preference.tolist())
+        if voting_scheme == veto_voting:
+            preference = np.ones(n_preferences, dtype=int)
+            idx = np.random.choice(n_preferences, 1)
+            preference[idx] = 0
+            custom_preference_vector.append(preference.tolist())
+
+    preference_vector_input.set_text(str(custom_preference_vector))
+
 if __name__ == "__main__":
     init_settings()
     init_pygame()
@@ -351,11 +378,13 @@ if __name__ == "__main__":
             if event.type == pygame.USEREVENT:
                 if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                     if event.ui_element == randomize_n_voters_button:
-                        n_voters = random.randint(0, 99)
+                        n_voters = random.randint(1, 20)
                         number_votes_input.set_text(str(n_voters))
+                        generate_random_preference_matrix()
                     if event.ui_element == randomize_n_preferences_button:
-                        n_preferences = random.randint(0, 99)
+                        n_preferences = random.randint(1, 20)
                         number_preferences_input.set_text(str(n_preferences))
+                        generate_random_preference_matrix()
                     if event.ui_element == generate_table_button:
                         if n_voters == -1:
                             n_voters = 10
