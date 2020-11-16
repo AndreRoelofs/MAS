@@ -35,7 +35,7 @@ save_preference_vector_button = None
 single_vector_input = []
 response_label = None
 
-preference_vector = None
+custom_preference_vector = None
 
 voting_schemes = [
     'Voting for one',
@@ -53,6 +53,7 @@ def init_settings():
     global left_offset
     global output_console_size
     global output_console_position
+
 
     config = configparser.ConfigParser()
     config.read_file(open('./config.ini'))
@@ -137,7 +138,6 @@ def init_settings_ui():
                                              size=(int(left_offset*14.0), int(top_offset*1.2)))
 
 
-
 def init_runtime_ui():
     global generate_table_button
     gui.create_label(pygame, ui_manager,
@@ -194,10 +194,12 @@ def create_table(table_container):
     global single_vector_input
     global preference_vector
 
-    if preference_vector is None:
-        if n_voters > 0:
-            preference_vector = np.array([np.arange(1, n_preferences+1) for _ in range(n_voters)])
-            print(preference_vector.shape)
+    if custom_preference_vector is not None:
+        pref_v = custom_preference_vector
+    else:
+        pref_v = random_table()
+
+    single_vector_input = []
 
     container = table_container.get_container()
     container.clear()
@@ -230,9 +232,7 @@ def create_table(table_container):
         container.add_element(voter_name_label)
 
         for j in range(n_preferences):
-            voter_pref = str(j+1)
-            if preference_vector is not None:
-                voter_pref = str(preference_vector[i][j])
+            voter_pref = str(pref_v[i][j])
 
             preference_label = gui.create_label(
                 pygame,
@@ -249,6 +249,7 @@ def create_table(table_container):
 
 
 def parse_vector(pref_vec):
+    global custom_vector
     # Simple check whether it is a 2D array
     if pref_vec[:2] == '[[' and pref_vec[-2:] == ']]':
         # Use ast.literal_eval to convert the string to an actual array
@@ -265,6 +266,7 @@ def parse_vector(pref_vec):
             # Check for each voter whether he has voted correctly
             for c, voter in enumerate(pv):
                 if len(voter) == len(set(voter)):
+                    custom_vector = True
                     return pv
                 else:
                     print("Voter {voter} has voted multiple times for a candidate".format(voter=c+1))
@@ -272,13 +274,24 @@ def parse_vector(pref_vec):
 
 
 def parse_single_vector(voter, pref_vec):
-    global preference_vector
+    global custom_preference_vector
+    if custom_preference_vector is None:
+        custom_preference_vector = random_table()
     if pref_vec[0] == '[' and pref_vec[-1] == ']':
         pv = literal_eval(pref_vec)
         if len(pv) == n_preferences:
-            preference_vector[voter] = pv
-            return True
+            if len(pv) == len(set(pv)):
+                custom_preference_vector[voter] = pv
+                return True
     return False
+
+
+def random_table():
+    if n_voters > 0:
+        preference_vector = np.array([list(range(1, n_preferences + 1)) for _ in range(n_voters)])
+        for c in range(n_voters):
+            random.shuffle(preference_vector[c])
+    return preference_vector
 
 
 if __name__ == "__main__":
@@ -329,10 +342,10 @@ if __name__ == "__main__":
                         parsed_vector = parse_vector(preference_vector_in)
                         if parsed_vector is None:
                             response_label.set_text("Not a correct preference vector")
-                            preference_vector = None
+                            custom_preference_vector = None
                         else:
                             response_label.set_text("Preference vector parsed!")
-                            preference_vector = parsed_vector
+                            custom_preference_vector = parsed_vector
 
                 # Input parsing
                 if event.user_type == pygame_gui.UI_TEXT_ENTRY_CHANGED:
