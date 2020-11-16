@@ -32,6 +32,7 @@ n_voters = -1
 n_preferences = -1
 preference_vector_input = None
 save_preference_vector_button = None
+single_vector_input = []
 response_label = None
 
 preference_vector = None
@@ -181,7 +182,7 @@ def create_table_ui():
         text='Pref...',
     )
 
-    rect = pygame.Rect((int(left_offset*15.5), int(top_offset*2.5)), (int(left_offset*9.0), int(top_offset*12.0)))
+    rect = pygame.Rect((int(left_offset*15.5), int(top_offset*2.5)), (int(left_offset*15.0), int(top_offset*12.0)))
     table_container = UIScrollingContainer(
         relative_rect=rect,
         manager=ui_manager,
@@ -190,6 +191,7 @@ def create_table_ui():
 
 
 def create_table(table_container):
+    global single_vector_input
     container = table_container.get_container()
     container.clear()
 
@@ -205,6 +207,8 @@ def create_table(table_container):
             container=table_container,
             position=(0, vertical_offset * i),
         )
+
+        single_vector_input.append(vector_input)
 
         voter_name_label = gui.create_label(
             pygame,
@@ -260,11 +264,21 @@ def parse_vector(pref_vec):
         return None
 
 
+def parse_single_vector(voter, pref_vec):
+    global preference_vector
+    if pref_vec[0] == '[' and pref_vec[-1] == ']':
+        pv = literal_eval(pref_vec)
+        if len(pv) == n_preferences:
+            preference_vector[voter] = pv
+            return True
+    return False
+
+
 if __name__ == "__main__":
     init_settings()
     init_pygame()
     ui_manager = gui.init_ui(screen_size)
-    gui.create_text_box(pygame, ui_manager, size=output_console_size, position=output_console_position)
+    # gui.create_text_box(pygame, ui_manager, size=output_console_size, position=output_console_position)
 
     gui.create_label(pygame, ui_manager, position=(left_offset, int(top_offset*0.7)), size=(int(left_offset*14.0), int(top_offset*1.0)), text='Settings')
 
@@ -313,8 +327,6 @@ if __name__ == "__main__":
                             response_label.set_text("Preference vector parsed!")
                             preference_vector = parsed_vector
 
-
-
                 # Input parsing
                 if event.user_type == pygame_gui.UI_TEXT_ENTRY_CHANGED:
                     if len(event.text) != 0:
@@ -322,6 +334,12 @@ if __name__ == "__main__":
                             n_voters = int(event.text)
                         elif event.ui_element == number_preferences_input:
                             n_preferences = int(event.text)
+
+                        else:
+                            for i, vector_input in enumerate(single_vector_input):
+                                if event.ui_element == vector_input:
+                                    if parse_single_vector(i, event.text):
+                                        create_table(table_container)
 
         ui_manager.update(time_delta)
 
