@@ -3,6 +3,24 @@ import random
 import time
 from copy import copy
 
+voting_schemes = [
+    'Voting for one',
+    'Voting for two',
+    'Veto voting',
+    'Borda voting',
+    'Round voting',
+]
+
+voting_strategies = [
+    '',
+    'Compromising',
+    'Burying',
+    'Push over',
+    'Bullet voting',
+]
+
+voting_for_one, voting_for_two, veto_voting, borda_voting, _ = voting_schemes
+_, compromising, burying, _, bullet_voting = voting_strategies
 
 class Situation:
     def __init__(self, preference_matrix):
@@ -143,11 +161,12 @@ class Situation:
         result_string += "Overall voter happiness is {}\n".format(self.overall_happiness)
         return result_string
 
-    def print_strategic_voting_options(self):
-        print("Applying strategy: {}".format(self.voting_strategy))
+    def generate_strategic_voting_output(self):
+        result_string = "\n\n\nApplying strategy: {}\n".format(self.voting_strategy)
         for option in self.strategic_voting_options:
             v_id, v, O, H, z = option
-            print("v_id: {}, v: {}, O^~: {}, H^~: {}, z: {}".format(v_id, v, O, H, z))
+            result_string += "v_id: {}, v: {}, O^~: {}, H^~: {}, z: {}\n".format(v_id, v, O, H, z)
+        return result_string
 
 
 class Voter:
@@ -234,23 +253,7 @@ class Candidate:
 
 
 if __name__ == "__main__":
-    voting_schemes = [
-        'Voting for one',
-        'Voting for two',
-        'Veto voting',
-        'Borda voting',
-        'Round voting',
-    ]
 
-    voting_strategies = [
-        'Compromising',
-        'Burying',
-        'Push over',
-        'Bullet voting',
-    ]
-
-    voting_for_one, voting_for_two, veto_voting, borda_voting, _ = voting_schemes
-    compromising, burying, _, bullet_voting = voting_strategies
 
     preference_matrix = [
         [0, 1, 2],

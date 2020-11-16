@@ -9,7 +9,7 @@ from pygame_gui.elements import \
 from ass1.helpers import *
 from ast import literal_eval
 import numpy as np
-import ass1.voting as v
+from ass1.voting import *
 
 import ass1.gui as gui
 
@@ -35,29 +35,14 @@ preference_vector_input = None
 save_preference_vector_button = None
 single_vector_input = []
 response_label = None
-execute_voting_conditions = None
+execute_voting_conditions_button = None
 situation = None
 output_console = None
 
+voting_schemes_dropdown = None
+voting_strategies_dropdown = None
+
 custom_preference_vector = None
-
-voting_schemes = [
-    'Voting for one',
-    'Voting for two',
-    'Veto voting',
-    'Borda voting',
-    'Round voting',
-]
-
-voting_strategies = [
-    'Compromising',
-    'Burying',
-    'Push over',
-    'Bullet voting',
-]
-
-voting_for_one, voting_for_two, veto_voting, borda_voting, _ = voting_schemes
-compromising, burying, _, bullet_voting = voting_strategies
 
 
 def init_settings():
@@ -69,7 +54,6 @@ def init_settings():
     global output_console_size
     global output_console_position
 
-
     config = configparser.ConfigParser()
     config.read_file(open('./config.ini'))
 
@@ -79,13 +63,15 @@ def init_settings():
                    int(default_config['ScreenHeight']))
     FPS = int(default_config['FPS'])
 
-    #offsets
-    top_offset = int(int(default_config['ScreenHeight'])/18)
-    left_offset = int(int(default_config['ScreenWidth'])/32)
+    # offsets
+    top_offset = int(int(default_config['ScreenHeight']) / 18)
+    left_offset = int(int(default_config['ScreenWidth']) / 32)
 
-    #output console dimension
-    output_console_size = (int(int(default_config['ScreenWidth'])/5),int(default_config['ScreenHeight'])-top_offset)
-    output_console_position = (int(int(default_config['ScreenWidth'])-int(default_config['ScreenWidth'])/5)-left_offset, top_offset)
+    # output console dimension
+    output_console_size = (
+    int(int(default_config['ScreenWidth']) / 5), int(default_config['ScreenHeight']) - top_offset)
+    output_console_position = (
+    int(int(default_config['ScreenWidth']) - int(default_config['ScreenWidth']) / 5) - left_offset, top_offset)
 
 
 def init_pygame():
@@ -114,106 +100,113 @@ def init_settings_ui():
     global response_label
 
     # init n voters ui
-    gui.create_label(pygame, ui_manager, position=(int(left_offset*1.0), int(top_offset*2.2)), text='Number of voters',
-                     size=(int(left_offset*4.0), int(top_offset*1.0)))
+    gui.create_label(pygame, ui_manager, position=(int(left_offset * 1.0), int(top_offset * 2.2)),
+                     text='Number of voters',
+                     size=(int(left_offset * 4.0), int(top_offset * 1.0)))
     number_votes_input = gui.create_input(pygame, ui_manager,
-                                          size=(int(left_offset*3.0), int(top_offset*0.6)),
-                                          position=(int(left_offset*5.5), int(top_offset*2.5)))
+                                          size=(int(left_offset * 3.0), int(top_offset * 0.6)),
+                                          position=(int(left_offset * 5.5), int(top_offset * 2.5)))
     number_votes_input.set_allowed_characters('numbers')
     number_votes_input.set_text_length_limit(2)
     number_votes_input.set_text(str(n_voters))
     randomize_n_voters_button = gui.create_button(pygame, ui_manager,
                                                   text='Randomize number of voters',
-                                                  size=(int(left_offset*6.0), int(top_offset*1.0)),
-                                                  position=(int(left_offset*9.0), int(top_offset*2.2)))
+                                                  size=(int(left_offset * 6.0), int(top_offset * 1.0)),
+                                                  position=(int(left_offset * 9.0), int(top_offset * 2.2)))
 
     # init n preferences ui
-    gui.create_label(pygame, ui_manager, position=(int(left_offset*1.0), int(top_offset*3.7)),
+    gui.create_label(pygame, ui_manager, position=(int(left_offset * 1.0), int(top_offset * 3.7)),
                      text='Number of preferences',
-                     size=(int(left_offset*4.0), int(top_offset*1.0)))
-    number_preferences_input = gui.create_input(pygame, ui_manager, size=(int(left_offset*3.0), int(top_offset*0.6)),
-                                                position=(int(left_offset*5.5), int(top_offset*4.0)))
+                     size=(int(left_offset * 4.0), int(top_offset * 1.0)))
+    number_preferences_input = gui.create_input(pygame, ui_manager,
+                                                size=(int(left_offset * 3.0), int(top_offset * 0.6)),
+                                                position=(int(left_offset * 5.5), int(top_offset * 4.0)))
     number_preferences_input.set_allowed_characters('numbers')
     number_preferences_input.set_text_length_limit(2)
     number_preferences_input.set_text(str(n_preferences))
     randomize_n_preferences_button = gui.create_button(pygame, ui_manager, text='Randomize number of preferences',
-                                                       size=(int(left_offset*6.0), int(top_offset*1.0)),
-                                                       position=(int(left_offset*9.0), int(top_offset*3.7)))
+                                                       size=(int(left_offset * 6.0), int(top_offset * 1.0)),
+                                                       position=(int(left_offset * 9.0), int(top_offset * 3.7)))
 
     # init vector initialization
-    gui.create_label(pygame, ui_manager, position=(int(left_offset*1.0), int(top_offset*5.2)),
+    gui.create_label(pygame, ui_manager, position=(int(left_offset * 1.0), int(top_offset * 5.2)),
                      text='Preference vector (two dimensional python array [[]])',
-                     size=(int(left_offset*14.0), int(top_offset*1.0)))
-    preference_vector_input = gui.create_input(pygame, ui_manager, size=(int(left_offset*7.5), int(top_offset*0.6)),
-                                                position=(int(left_offset*1.0), int(top_offset*6.7)))
+                     size=(int(left_offset * 14.0), int(top_offset * 1.0)))
+    preference_vector_input = gui.create_input(pygame, ui_manager, size=(int(left_offset * 7.5), int(top_offset * 0.6)),
+                                               position=(int(left_offset * 1.0), int(top_offset * 6.7)))
     save_preference_vector_button = gui.create_button(pygame, ui_manager, text='Save preference vector',
-                                                       size=(int(left_offset*6.0), int(top_offset*1.0)),
-                                                       position=(int(left_offset*9.0), int(top_offset*6.5)))
+                                                      size=(int(left_offset * 6.0), int(top_offset * 1.0)),
+                                                      position=(int(left_offset * 9.0), int(top_offset * 6.5)))
     response_label = gui.create_text_display(pygame,
                                              ui_manager,
-                                             position=(int(left_offset*1.0), int(top_offset*8)),
-                                             size=(int(left_offset*14.0), int(top_offset*1.2)))
+                                             position=(int(left_offset * 1.0), int(top_offset * 8)),
+                                             size=(int(left_offset * 14.0), int(top_offset * 1.2)))
 
 
 def init_runtime_ui():
     global generate_table_button
-    global execute_voting_conditions
+    global execute_voting_conditions_button
+    global voting_schemes_dropdown
+    global voting_strategies_dropdown
+
     gui.create_label(pygame, ui_manager,
-                     position=(int(left_offset*1.0), int(top_offset*12.0)),
-                     size=(int(left_offset*14.0), int(top_offset*1.0)),
+                     position=(int(left_offset * 1.0), int(top_offset * 12.0)),
+                     size=(int(left_offset * 14.0), int(top_offset * 1.0)),
                      text='Runtime')
 
-    gui.create_dropdown_button(pygame, ui_manager,
-                               opt_list=voting_schemes,
-                               position=(int(left_offset*1.0), int(top_offset*13.5)),
-                               size=(int(left_offset*6.0), int(top_offset*1.0))
-                               )
+    voting_schemes_dropdown = gui.create_dropdown_button(pygame, ui_manager,
+                                                         opt_list=voting_schemes,
+                                                         position=(int(left_offset * 1.0), int(top_offset * 13.5)),
+                                                         size=(int(left_offset * 6.0), int(top_offset * 1.0))
+                                                         )
+    voting_strategies_dropdown = gui.create_dropdown_button(pygame, ui_manager,
+                                                            opt_list=voting_strategies,
+                                                            position=(int(left_offset * 1.0), int(top_offset * 14.5)),
+                                                            size=(int(left_offset * 6.0), int(top_offset * 1.0)),
+                                                            )
 
-    gui.create_dropdown_button(pygame, ui_manager,
-                               opt_list=voting_strategies,
-                               position=(int(left_offset*1.0), int(top_offset*14.5)),
-                               size=(int(left_offset*6.0), int(top_offset*1.0))
-                               )
+    voting_strategies_dropdown.selected_option = ''
 
     generate_table_button = gui.create_button(pygame, ui_manager,
-                      text='Generate voters table',
-                      position=(int(left_offset*9.0), int(top_offset*13.5)),
-                      size=(int(left_offset*6.0), int(top_offset*1.0))
-                      )
+                                              text='Generate voters table',
+                                              position=(int(left_offset * 9.0), int(top_offset * 13.5)),
+                                              size=(int(left_offset * 6.0), int(top_offset * 1.0))
+                                              )
 
-    execute_voting_conditions = gui.create_button(pygame, ui_manager,
-                      text='Execute voting conditions',
-                      position=(int(left_offset*9.0), int(top_offset*14.5)),
-                      size=(int(left_offset*6.0), int(top_offset*1.0))
-                      )
+    execute_voting_conditions_button = gui.create_button(pygame, ui_manager,
+                                                         text='Execute voting conditions',
+                                                         position=(int(left_offset * 9.0), int(top_offset * 14.5)),
+                                                         size=(int(left_offset * 6.0), int(top_offset * 1.0))
+                                                         )
 
 
 def create_table_ui():
     gui.create_label(
         pygame,
         ui_manager,
-        position=(int(left_offset*15.5), int(top_offset*1.0)),
-        size=(int(left_offset*3.0), int(top_offset*1.0)),
+        position=(int(left_offset * 15.5), int(top_offset * 1.0)),
+        size=(int(left_offset * 3.0), int(top_offset * 1.0)),
         text='Preference Vector',
     )
 
     gui.create_label(
         pygame,
         ui_manager,
-        position=(int(left_offset*19.0), int(top_offset*1.0)),
-        size=(int(left_offset*3.0), int(top_offset*1.0)),
+        position=(int(left_offset * 19.0), int(top_offset * 1.0)),
+        size=(int(left_offset * 3.0), int(top_offset * 1.0)),
         text='Voter Name',
     )
 
     gui.create_label(
         pygame,
         ui_manager,
-        position=(int(left_offset*22.5), int(top_offset*1.0)),
-        size=(int(left_offset*2.0), int(top_offset*1.0)),
+        position=(int(left_offset * 22.5), int(top_offset * 1.0)),
+        size=(int(left_offset * 2.0), int(top_offset * 1.0)),
         text='Pref...',
     )
 
-    rect = pygame.Rect((int(left_offset*15.5), int(top_offset*2.5)), (int(left_offset*9.0), int(top_offset*12.0)))
+    rect = pygame.Rect((int(left_offset * 15.5), int(top_offset * 2.5)),
+                       (int(left_offset * 9.0), int(top_offset * 12.0)))
     table_container = UIScrollingContainer(
         relative_rect=rect,
         manager=ui_manager,
@@ -235,10 +228,10 @@ def create_table(table_container):
     container = table_container.get_container()
     container.clear()
 
-    top_size = int(top_offset*0.6)
-    left_size = int(left_offset*3.0)
+    top_size = int(top_offset * 0.6)
+    left_size = int(left_offset * 3.0)
     vertical_offset = top_offset
-    horizontal_offset = int(left_offset*3.5)
+    horizontal_offset = int(left_offset * 3.5)
     for i in range(n_voters):
         vector_input = gui.create_input(
             pygame,
@@ -275,7 +268,6 @@ def create_table(table_container):
             )
             container.add_element(preference_label)
 
-
     table_container.set_scrollable_area_dimensions((1000, n_voters * vertical_offset))
 
 
@@ -300,7 +292,7 @@ def parse_vector(pref_vec):
                     custom_vector = True
                     return pv
                 else:
-                    print("Voter {voter} has voted multiple times for a candidate".format(voter=c+1))
+                    print("Voter {voter} has voted multiple times for a candidate".format(voter=c + 1))
         return None
 
 
@@ -331,7 +323,8 @@ if __name__ == "__main__":
     ui_manager = gui.init_ui(screen_size)
     output_console = gui.create_text_box(pygame, ui_manager, size=output_console_size, position=output_console_position)
 
-    gui.create_label(pygame, ui_manager, position=(left_offset, int(top_offset*0.7)), size=(int(left_offset*14.0), int(top_offset*1.0)), text='Settings')
+    gui.create_label(pygame, ui_manager, position=(left_offset, int(top_offset * 0.7)),
+                     size=(int(left_offset * 14.0), int(top_offset * 1.0)), text='Settings')
 
     init_settings_ui()
 
@@ -345,16 +338,6 @@ if __name__ == "__main__":
     preference_vector_input.set_text(vector_string)
     parsed_vector = parse_vector(vector_string)
     custom_preference_vector = parsed_vector
-
-    situation = v.Situation(custom_preference_vector)
-    situation.calculate_outcome(borda_voting)
-
-    output_string = situation.generate_output()
-
-
-    output_console.html_text = '<font face=Montserrat size=5 color=#000000>{}</font>'.format(output_string.replace('\n', '<br><br>'))
-    output_console.rebuild()
-    output_console.full_redraw()
 
     while running:
         time_delta = clock.tick(FPS) / 1000.0
@@ -392,6 +375,19 @@ if __name__ == "__main__":
                         else:
                             response_label.set_text("Preference vector parsed!")
                             custom_preference_vector = parsed_vector
+                    if event.ui_element == execute_voting_conditions_button:
+                        situation = Situation(custom_preference_vector)
+                        situation.calculate_outcome(voting_schemes_dropdown.selected_option)
+                        output_string = situation.generate_output()
+
+                        if voting_strategies_dropdown.selected_option != '':
+                            situation.apply_voting_strategy(voting_strategies_dropdown.selected_option)
+                            output_string += situation.generate_strategic_voting_output()
+
+                        output_console.html_text = '<font face=Montserrat size=5 color=#000000>{}</font>'.format(
+                            output_string.replace('\n', '<br><br>'))
+                        output_console.rebuild()
+                        output_console.full_redraw()
 
                 # Input parsing
                 if event.user_type == pygame_gui.UI_TEXT_ENTRY_CHANGED:

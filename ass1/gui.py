@@ -32,14 +32,7 @@ def init_ui(screen_size):
 
 
 def create_text_box(pygame, ui_manager, size=(250, 200), position=(520, 10), font_size=5):
-    return UITextBox('<font face=Montserrat size=' + str(font_size) + ' color=#000000><b>Hey, What the heck!</b>'
-                                                                      '<br><br>'
-                                                                      'This is some <a href="test">text</a> in a different box,'
-                                                                      ' hooray for variety - '
-                                                                      'if you want then you should put a ring upon it. '
-                                                                      '<body bgcolor=#990000>What if we do a really long word?</body> '
-                                                                      '<b><i>derp FALALALALALALALXALALALXALALALALAAPaaaaarp gosh'
-                                                                      '</b></i></font>',
+    return UITextBox('<font face=Montserrat size=' + str(font_size) + ' color=#000000>Awaiting execution...</font>',
                      pygame.Rect(position, size),
                      manager=ui_manager,
                      object_id="#text_box_2")
