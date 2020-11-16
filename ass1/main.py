@@ -192,6 +192,13 @@ def create_table_ui():
 
 def create_table(table_container):
     global single_vector_input
+    global preference_vector
+
+    if preference_vector is None:
+        if n_voters > 0:
+            preference_vector = np.array([np.arange(1, n_preferences+1) for _ in range(n_voters)])
+            print(preference_vector.shape)
+
     container = table_container.get_container()
     container.clear()
 
@@ -266,12 +273,11 @@ def parse_vector(pref_vec):
 
 def parse_single_vector(voter, pref_vec):
     global preference_vector
-    if preference_vector is not None:
-        if pref_vec[0] == '[' and pref_vec[-1] == ']':
-            pv = literal_eval(pref_vec)
-            if len(pv) == n_preferences:
-                preference_vector[voter] = pv
-                return True
+    if pref_vec[0] == '[' and pref_vec[-1] == ']':
+        pv = literal_eval(pref_vec)
+        if len(pv) == n_preferences:
+            preference_vector[voter] = pv
+            return True
     return False
 
 
