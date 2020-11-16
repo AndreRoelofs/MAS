@@ -266,11 +266,12 @@ def parse_vector(pref_vec):
 
 def parse_single_vector(voter, pref_vec):
     global preference_vector
-    if pref_vec[0] == '[' and pref_vec[-1] == ']':
-        pv = literal_eval(pref_vec)
-        if len(pv) == n_preferences:
-            preference_vector[voter] = pv
-            return True
+    if preference_vector is not None:
+        if pref_vec[0] == '[' and pref_vec[-1] == ']':
+            pv = literal_eval(pref_vec)
+            if len(pv) == n_preferences:
+                preference_vector[voter] = pv
+                return True
     return False
 
 
