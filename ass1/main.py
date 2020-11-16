@@ -10,7 +10,7 @@ from ass1.helpers import *
 from ast import literal_eval
 import numpy as np
 
-import ass1.gui
+import ass1.gui as gui
 
 config = None
 screen_size = None
