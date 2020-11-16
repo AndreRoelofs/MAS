@@ -170,7 +170,11 @@ class Situation:
         for option in self.strategic_voting_options:
             v_id, v, O, H, z = option
             result_string += "v_id: {}, v: {}, O^~: {}, H^~: {}, z: {}\n".format(v_id, v, O, H, z)
+
+        result_string += "Overall risk of strategic voting: {}\n".format(len(self.strategic_voting_options)/self.voter_num)
+
         return result_string
+
 
 
 class Voter:
