@@ -325,7 +325,8 @@ def generate_random_preference_matrix():
     voting_scheme = voting_schemes_dropdown.selected_option
     for i in range(n_voters):
         if voting_scheme == borda_voting:
-            custom_preference_vector.append(np.random.randint(0, n_preferences, 1, dtype=int).tolist())
+
+            custom_preference_vector.append(np.random.choice(np.arange(0, n_preferences, dtype=int), n_preferences, replace=False).tolist())
         if voting_scheme == voting_for_one:
             preference = np.zeros(n_preferences, dtype=int)
             idx = np.random.choice(n_preferences, 1)
