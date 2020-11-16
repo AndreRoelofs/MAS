@@ -9,6 +9,7 @@ from pygame_gui.elements import \
 from ass1.helpers import *
 from ast import literal_eval
 import numpy as np
+import ass1.voting as v
 
 import ass1.gui as gui
 
@@ -28,12 +29,15 @@ randomize_n_preferences_button = None
 generate_table_button = None
 number_votes_input = None
 number_preferences_input = None
-n_voters = -1
-n_preferences = -1
+n_voters = 2
+n_preferences = 2
 preference_vector_input = None
 save_preference_vector_button = None
 single_vector_input = []
 response_label = None
+execute_voting_conditions = None
+situation = None
+output_console = None
 
 custom_preference_vector = None
 
@@ -42,7 +46,18 @@ voting_schemes = [
     'Voting for two',
     'Veto voting',
     'Borda voting',
+    'Round voting',
 ]
+
+voting_strategies = [
+    'Compromising',
+    'Burying',
+    'Push over',
+    'Bullet voting',
+]
+
+voting_for_one, voting_for_two, veto_voting, borda_voting, _ = voting_schemes
+compromising, burying, _, bullet_voting = voting_strategies
 
 
 def init_settings():
@@ -106,6 +121,7 @@ def init_settings_ui():
                                           position=(int(left_offset*5.5), int(top_offset*2.5)))
     number_votes_input.set_allowed_characters('numbers')
     number_votes_input.set_text_length_limit(2)
+    number_votes_input.set_text(str(n_voters))
     randomize_n_voters_button = gui.create_button(pygame, ui_manager,
                                                   text='Randomize number of voters',
                                                   size=(int(left_offset*6.0), int(top_offset*1.0)),
@@ -117,8 +133,9 @@ def init_settings_ui():
                      size=(int(left_offset*4.0), int(top_offset*1.0)))
     number_preferences_input = gui.create_input(pygame, ui_manager, size=(int(left_offset*3.0), int(top_offset*0.6)),
                                                 position=(int(left_offset*5.5), int(top_offset*4.0)))
-    number_votes_input.set_allowed_characters('numbers')
-    number_votes_input.set_text_length_limit(2)
+    number_preferences_input.set_allowed_characters('numbers')
+    number_preferences_input.set_text_length_limit(2)
+    number_preferences_input.set_text(str(n_preferences))
     randomize_n_preferences_button = gui.create_button(pygame, ui_manager, text='Randomize number of preferences',
                                                        size=(int(left_offset*6.0), int(top_offset*1.0)),
                                                        position=(int(left_offset*9.0), int(top_offset*3.7)))
@@ -140,6 +157,7 @@ def init_settings_ui():
 
 def init_runtime_ui():
     global generate_table_button
+    global execute_voting_conditions
     gui.create_label(pygame, ui_manager,
                      position=(int(left_offset*1.0), int(top_offset*12.0)),
                      size=(int(left_offset*14.0), int(top_offset*1.0)),
@@ -150,9 +168,22 @@ def init_runtime_ui():
                                position=(int(left_offset*1.0), int(top_offset*13.5)),
                                size=(int(left_offset*6.0), int(top_offset*1.0))
                                )
+
+    gui.create_dropdown_button(pygame, ui_manager,
+                               opt_list=voting_strategies,
+                               position=(int(left_offset*1.0), int(top_offset*14.5)),
+                               size=(int(left_offset*6.0), int(top_offset*1.0))
+                               )
+
     generate_table_button = gui.create_button(pygame, ui_manager,
                       text='Generate voters table',
                       position=(int(left_offset*9.0), int(top_offset*13.5)),
+                      size=(int(left_offset*6.0), int(top_offset*1.0))
+                      )
+
+    execute_voting_conditions = gui.create_button(pygame, ui_manager,
+                      text='Execute voting conditions',
+                      position=(int(left_offset*9.0), int(top_offset*14.5)),
                       size=(int(left_offset*6.0), int(top_offset*1.0))
                       )
 
@@ -182,7 +213,7 @@ def create_table_ui():
         text='Pref...',
     )
 
-    rect = pygame.Rect((int(left_offset*15.5), int(top_offset*2.5)), (int(left_offset*15.0), int(top_offset*12.0)))
+    rect = pygame.Rect((int(left_offset*15.5), int(top_offset*2.5)), (int(left_offset*9.0), int(top_offset*12.0)))
     table_container = UIScrollingContainer(
         relative_rect=rect,
         manager=ui_manager,
@@ -298,7 +329,7 @@ if __name__ == "__main__":
     init_settings()
     init_pygame()
     ui_manager = gui.init_ui(screen_size)
-    # gui.create_text_box(pygame, ui_manager, size=output_console_size, position=output_console_position)
+    output_console = gui.create_text_box(pygame, ui_manager, size=output_console_size, position=output_console_position)
 
     gui.create_label(pygame, ui_manager, position=(left_offset, int(top_offset*0.7)), size=(int(left_offset*14.0), int(top_offset*1.0)), text='Settings')
 
@@ -309,6 +340,21 @@ if __name__ == "__main__":
 
     table_container = create_table_ui()
     running = True
+
+    vector_string = "[[0, 1],[1, 0]]"
+    preference_vector_input.set_text(vector_string)
+    parsed_vector = parse_vector(vector_string)
+    custom_preference_vector = parsed_vector
+
+    situation = v.Situation(custom_preference_vector)
+    situation.calculate_outcome(borda_voting)
+
+    output_string = situation.generate_output()
+
+
+    output_console.html_text = '<font face=Montserrat size=5 color=#000000>{}</font>'.format(output_string.replace('\n', '<br><br>'))
+    output_console.rebuild()
+    output_console.full_redraw()
 
     while running:
         time_delta = clock.tick(FPS) / 1000.0
@@ -352,14 +398,13 @@ if __name__ == "__main__":
                     if len(event.text) != 0:
                         if event.ui_element == number_votes_input:
                             n_voters = int(event.text)
-                        elif event.ui_element == number_preferences_input:
+                        if event.ui_element == number_preferences_input:
                             n_preferences = int(event.text)
-
-                        else:
-                            for i, vector_input in enumerate(single_vector_input):
-                                if event.ui_element == vector_input:
-                                    if parse_single_vector(i, event.text):
-                                        create_table(table_container)
+                    else:
+                        for i, vector_input in enumerate(single_vector_input):
+                            if event.ui_element == vector_input:
+                                if parse_single_vector(i, event.text):
+                                    create_table(table_container)
 
         ui_manager.update(time_delta)
 

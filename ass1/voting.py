@@ -20,7 +20,6 @@ class Situation:
         self.strategic_voting_options = None
         self.overall_happiness = 0.0
 
-
         self.reset_situation()
 
     def calculate_outcome(self, voting_scheme, agenda=None):
@@ -102,8 +101,6 @@ class Situation:
         if voting_strategy == 'Bullet voting':
             self.calculate_outcome(self.voting_scheme)
 
-
-
     def set_preference_matrix(self, preference_matrix):
         self.preference_matrix = preference_matrix
 
@@ -136,13 +133,15 @@ class Situation:
             preference_vector = preference_matrix[i]
             voter.set_preference(preference_vector)
 
-    def print_output(self):
+    def generate_output(self):
+        result_string = ""
         for voter in self.voters:
-            voter.print_output()
-            print("\n")
-        print("Candidate {} won with a score of {}".format(self.candidates_outcome[0].id,
-                                                           self.candidates_outcome[0].score))
-        print("Overall voter happiness is {}".format(self.overall_happiness))
+            result_string += voter.generate_output()
+            result_string += "\n"
+        result_string += "Candidate {} won with a score of {}\n".format(self.candidates_outcome[0].id,
+                                                           self.candidates_outcome[0].score)
+        result_string += "Overall voter happiness is {}\n".format(self.overall_happiness)
+        return result_string
 
     def print_strategic_voting_options(self):
         print("Applying strategy: {}".format(self.voting_strategy))
@@ -209,7 +208,7 @@ class Voter:
         if voting_scheme == 'Borda voting':
             candidate_num = len(self.vote_order)
             for i in range(len(self.vote_order)):
-                self.vote_order[i].score += candidate_num-1-i
+                self.vote_order[i].score += candidate_num - 1 - i
                 if bullet_voting:
                     return
 
@@ -220,12 +219,10 @@ class Voter:
                     candidate.score += 1
                     return
 
-    def print_output(self):
-        print("Voter: ", self.id)
-        print("True preference: ", [c.id for c in self.preferences])
-        print("Adjusted preference: ", [c.id for c in self.vote_order])
-        # print("Vote: ", self.vote)
-        print("Happiness: ", self.happiness)
+    def generate_output(self):
+        return "Voter: {}\nTrue preference: {}\nAdjusted preference: {}\nHappiness: {}\n".format(
+            self.id, [c.id for c in self.preferences], [c.id for c in self.vote_order], self.happiness
+        )
 
 
 class Candidate:
@@ -264,7 +261,7 @@ if __name__ == "__main__":
     s = Situation(preference_matrix=preference_matrix)
 
     s.calculate_outcome(borda_voting, agenda)
-    s.print_output()
+    print(s.generate_output())
     #
     # s.voting_scheme = bullet_voting
     # s.calculate_outcome(borda_voting)
@@ -276,7 +273,6 @@ if __name__ == "__main__":
     # s.apply_voting_strategy(burying)
     # s.print_strategic_voting_options()
     #
-
 
     # s.calculate_outcome(voting_for_one)
     # s.print_output()
