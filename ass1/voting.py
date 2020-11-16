@@ -11,6 +11,8 @@ class Situation:
         self.preference_matrix = preference_matrix
 
         self.candidates = None
+        self.agenda = None
+        self.round_winner = None
         self.voting_strategy = ''
         self.voters = None
         self.voting_scheme = ''
@@ -18,14 +20,27 @@ class Situation:
         self.strategic_voting_options = None
         self.overall_happiness = 0.0
 
+
         self.reset_situation()
 
-    def calculate_outcome(self, voting_scheme):
+    def calculate_outcome(self, voting_scheme, agenda=None):
         self.voting_scheme = voting_scheme
-        for voter in self.voters:
-            voter.vote(voting_scheme, self.voting_strategy == 'Bullet voting')
 
-        self.candidates_outcome = sorted(self.candidates, key=lambda c: c.score, reverse=True)
+        if voting_scheme == 'Round voting':
+            self.round_winner = self.candidates[0]
+            for i in range(1, len(agenda)):
+                participants = [self.round_winner, self.candidates[i]]
+                for voter in self.voters:
+                    voter.vote_round(voting_scheme, participants)
+                if self.round_winner.score < self.candidates[i].score:
+                    self.round_winner.score = 0
+                    self.round_winner = self.candidates[i]
+                self.round_winner.score = 0
+                self.candidates[i].score = 0
+        else:
+            for voter in self.voters:
+                voter.vote(voting_scheme, self.voting_strategy == 'Bullet voting')
+            self.candidates_outcome = sorted(self.candidates, key=lambda c: c.score, reverse=True)
 
         for voter in self.voters:
             voter.calculate_happiness(self.candidates_outcome)
@@ -198,7 +213,12 @@ class Voter:
                 if bullet_voting:
                     return
 
-
+    def vote_round(self, voting_scheme, round_participants):
+        if voting_scheme == "Voting for one":
+            for candidate in self.vote_order:
+                if candidate in round_participants:
+                    candidate.score += 1
+                    return
 
     def print_output(self):
         print("Voter: ", self.id)
@@ -222,6 +242,7 @@ if __name__ == "__main__":
         'Voting for two',
         'Veto voting',
         'Borda voting',
+        'Round voting',
     ]
 
     voting_strategies = [
@@ -231,28 +252,30 @@ if __name__ == "__main__":
         'Bullet voting',
     ]
 
-    voting_for_one, voting_for_two, veto_voting, borda_voting = voting_schemes
+    voting_for_one, voting_for_two, veto_voting, borda_voting, _ = voting_schemes
     compromising, burying, _, bullet_voting = voting_strategies
 
     preference_matrix = [
         [0, 1, 2],
         [1, 2, 0],
     ]
+
+    agenda = [2, 1, 0]
     s = Situation(preference_matrix=preference_matrix)
 
-    s.calculate_outcome(borda_voting)
+    s.calculate_outcome(borda_voting, agenda)
     s.print_output()
-
-    s.voting_scheme = bullet_voting
-    s.calculate_outcome(borda_voting)
-    s.print_output()
-
-    s.apply_voting_strategy(compromising)
-    s.print_strategic_voting_options()
-
-    s.apply_voting_strategy(burying)
-    s.print_strategic_voting_options()
-
+    #
+    # s.voting_scheme = bullet_voting
+    # s.calculate_outcome(borda_voting)
+    # s.print_output()
+    #
+    # s.apply_voting_strategy(compromising)
+    # s.print_strategic_voting_options()
+    #
+    # s.apply_voting_strategy(burying)
+    # s.print_strategic_voting_options()
+    #
 
 
     # s.calculate_outcome(voting_for_one)
