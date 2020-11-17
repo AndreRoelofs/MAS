@@ -324,8 +324,12 @@ class Voter:
         self.voting_scheme = voting_scheme
 
     def generate_output(self):
-        return "Voter: {}\nTrue preference: {}\nAdjusted preference: {}\nHappiness: {}\n".format(
-            self.id, [c.id for c in self.preferences], [c.id for c in self.vote_order], self.happiness
+        # return "Voter: {}\nTrue preference: {}\nAdjusted preference: {}\nHappiness: {}\n".format(
+        #     self.id, [c.id for c in self.preferences], [c.id for c in self.vote_order], self.happiness
+        # )
+
+        return "Voter: {}\nPreference: {}\nHappiness: {}\n".format(
+            self.id, [c.id for c in self.preferences], self.happiness
         )
 
 
