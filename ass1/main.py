@@ -379,6 +379,9 @@ if __name__ == "__main__":
             ui_manager.process_events(event)
 
             if event.type == pygame.USEREVENT:
+                if (event.user_type == pygame_gui.UI_DROP_DOWN_MENU_CHANGED
+                        and event.ui_element == voting_schemes_dropdown):
+                    generate_random_preference_matrix()
                 if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                     if event.ui_element == randomize_n_voters_button:
                         set_n_voters(random.randint(1, 20))
