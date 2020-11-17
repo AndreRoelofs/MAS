@@ -110,7 +110,7 @@ class Situation:
 
                     self.strategic_voting_options.append(self.create_stategic_option(voter))
 
-                voter.set_vote_order(voter.get_preference_vector())
+                voter.set_vote_order(voter.get_preference_vector(), self.candidates)
 
     def apply_voting_strategy(self, voting_strategy):
         self.reset_situation()
