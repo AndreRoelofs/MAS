@@ -286,7 +286,7 @@ def parse_vector(pref_vec):
     set_n_voters(pv.shape[0])
     set_n_preferences(pv.shape[1])
 
-    return pv
+    return pv.tolist()
 
 def parse_single_vector(voter, pref_vec):
     global custom_preference_vector
