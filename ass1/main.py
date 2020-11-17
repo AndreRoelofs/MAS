@@ -406,8 +406,8 @@ if __name__ == "__main__":
                             response_label.set_text("Preference vector parsed!")
                             custom_preference_vector = parsed_vector
                     if event.ui_element == execute_voting_conditions_button:
-                        situation = Situation(custom_preference_vector)
-                        situation.calculate_outcome(voting_schemes_dropdown.selected_option)
+                        situation = Situation(custom_preference_vector, voting_schemes_dropdown.selected_option)
+                        situation.calculate_outcome()
                         output_string = situation.generate_output()
 
                         if voting_strategies_dropdown.selected_option != '':
