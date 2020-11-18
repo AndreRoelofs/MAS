@@ -168,9 +168,9 @@ class Situation:
         for voter in self.voters:
             result_string += voter.generate_output()
             result_string += "\n"
-        result_string += "Candidate {} won with a score of {}\n".format(self.candidates_outcome[0].id,
+        result_string += "<b>Candidate </b>{}<b> won with a score of </b>{}\n".format(self.candidates_outcome[0].id,
                                                            self.candidates_outcome[0].score)
-        result_string += "Overall voter happiness is {}\n".format(self.overall_happiness)
+        result_string += "<b>Overall voter happiness is </b>{}\n".format(self.overall_happiness)
         return result_string
 
     def generate_strategic_voting_output(self):
@@ -178,12 +178,12 @@ class Situation:
         if self.voting_strategy == bullet_voting:
             return self.generate_output()
 
-        result_string = "\n\n\nApplying strategy: {}\n".format(self.voting_strategy)
+        result_string = "\n\n\n<b>Applying strategy: {}</b>\n".format(self.voting_strategy)
         for option in self.strategic_voting_options:
             v_id, v, O, H, z = option
             result_string += "v_id: {}, v: {}, O^~: {}, H^~: {}, z: {}\n".format(v_id, v, O, H, z)
 
-        result_string += "Overall risk of strategic voting: {}\n".format(len(self.strategic_voting_options)/self.voter_num)
+        result_string += "<b>Overall risk of strategic voting:</b> {}\n".format(len(self.strategic_voting_options)/self.voter_num)
 
         return result_string
 
@@ -328,7 +328,7 @@ class Voter:
         #     self.id, [c.id for c in self.preferences], [c.id for c in self.vote_order], self.happiness
         # )
 
-        return "Voter: {}\nPreference: {}\nHappiness: {}\n".format(
+        return "<b>Voter: {}</b>\nPreference: {}\nHappiness: {}\n\n".format(
             self.id, [c.id for c in self.preferences], self.happiness
         )
 
