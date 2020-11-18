@@ -96,6 +96,7 @@ class Situation:
 
                     if voter.happiness > voter_happiness[i]:
                         self.strategic_voting_options.append(self.create_stategic_option(voter))
+                    self.reset_voter_happiness()
 
                 voter.set_vote_order(voter.get_preference_vector(), self.candidates)
 
@@ -117,6 +118,7 @@ class Situation:
 
                     if voter.happiness > voter_happiness[i]:
                         self.strategic_voting_options.append(self.create_stategic_option(voter))
+                    self.reset_voter_happiness()
 
                 voter.set_vote_order(voter.get_preference_vector(), self.candidates)
 
@@ -140,6 +142,10 @@ class Situation:
     def reset_candidate_scores(self):
         for c in self.candidates:
             c.score = 0
+
+    def reset_voter_happiness(self):
+        for v in self.voters:
+            v.happiness = 0.0
 
     def reset_situation(self):
         self.overall_happiness = 0.0
