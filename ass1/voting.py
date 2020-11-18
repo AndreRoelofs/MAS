@@ -79,6 +79,9 @@ class Situation:
         ]
 
     def apply_compromising(self):
+        self.calculate_outcome(self.voting_scheme)
+        voter_happiness = [v.happiness for v in self.voters]
+        self.reset_situation()
         for i in range(self.voter_num):
             voter = self.voters[i]
             for k in range(1, self.candidate_num):
@@ -91,11 +94,15 @@ class Situation:
                     self.calculate_outcome(self.voting_scheme)
                     self.reset_candidate_scores()
 
-                    self.strategic_voting_options.append(self.create_stategic_option(voter))
+                    if voter.happiness > voter_happiness[i]:
+                        self.strategic_voting_options.append(self.create_stategic_option(voter))
 
                 voter.set_vote_order(voter.get_preference_vector(), self.candidates)
 
     def apply_burying(self):
+        self.calculate_outcome(self.voting_scheme)
+        voter_happiness = [v.happiness for v in self.voters]
+        self.reset_situation()
         for i in range(self.voter_num):
             voter = self.voters[i]
             for k in range(0, self.candidate_num):
@@ -108,7 +115,8 @@ class Situation:
                     self.calculate_outcome(self.voting_scheme)
                     self.reset_candidate_scores()
 
-                    self.strategic_voting_options.append(self.create_stategic_option(voter))
+                    if voter.happiness > voter_happiness[i]:
+                        self.strategic_voting_options.append(self.create_stategic_option(voter))
 
                 voter.set_vote_order(voter.get_preference_vector(), self.candidates)
 
