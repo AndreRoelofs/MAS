@@ -5,7 +5,7 @@ from ass1.helpers import *
 from ast import literal_eval
 import numpy as np
 from numpy import random
-from ass2.auctioning import auctioning_types, start_price_type
+from ass2.auctioning import auctioning_types, start_price_types
 
 import ass1.gui as gui
 
@@ -174,9 +174,9 @@ def create_auction_settings_ui():
                      size=(int(left_offset * 4.0), int(top_offset * 1.0)))
 
     start_price_type_dropdown = gui.create_dropdown_button(pygame, ui_manager,
-                                                         opt_list=start_price_type,
-                                                         position=(int(left_offset * 6.0), int(top_offset * 10.0)),
-                                                         size=(int(left_offset * 9.0), int(top_offset * 1.0)))
+                                                           opt_list=start_price_types,
+                                                           position=(int(left_offset * 6.0), int(top_offset * 10.0)),
+                                                           size=(int(left_offset * 9.0), int(top_offset * 1.0)))
 
 
 
