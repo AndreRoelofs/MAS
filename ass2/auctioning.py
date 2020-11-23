@@ -5,20 +5,29 @@ from copy import copy
 auction_pure = "Pure"
 auction_leveled = "Leveled"
 
-price_type_random = "Random"
-price_type_own_good = "Own good"
-price_type_common_good = "Common good"
-
 auctioning_types = [
     auction_pure,
     auction_leveled
 ]
+
+price_type_random = "Random"
+price_type_own_good = "Own good"
+price_type_common_good = "Common good"
 
 start_price_types = [
     price_type_random,
     price_type_own_good,
     price_type_common_good,
 ]
+
+bidding_standard = "Standard"
+bidding_advanced = "Advanced"
+
+bidding_strategy_types = [
+    bidding_standard,
+    bidding_advanced,
+]
+
 
 
 class Auction:
@@ -35,21 +44,27 @@ class Auction:
     def __init__(self,
                  auction_type,
                  start_price_type,
+                 bidding_strategy,
                  number_sellers=2,
                  number_buyers=3,
                  number_rounds=2,
                  penalty_factor=0.1,
-                 max_starting_price=100):
+                 bid_increase_factor=1.2,
+                 bid_decrease_factor=0.1,
+                 max_starting_price=100,):
         self.n_sellers = number_sellers
         self.n_buyers = number_buyers
         self.n_rounds = number_rounds
 
         self.auction_type = auction_type
         self.start_price_type = start_price_type
+        self.bidding_strategy = bidding_strategy
         self.max_starting_price = max_starting_price
 
         self.current_round_number = 0
         self.penalty_factor = penalty_factor
+        self.bid_increase_factor = bid_increase_factor
+        self.bid_decrease_factor = bid_decrease_factor
 
         self.initialize_sellers()
         self.initialize_buyers()
@@ -69,7 +84,8 @@ class Auction:
         for i in range(self.n_buyers):
             self.buyers.append(Buyer(
                 id=i,
-                number_sellers=self.n_sellers
+                number_sellers=self.n_sellers,
+                bidding_strategy=self.bidding_strategy
             ))
 
     def initialize_rounds(self):
@@ -98,31 +114,36 @@ class Auction:
 
             # determine the winner
             winner_id, winner_payout = item.get_winner_id_and_payout()
-            winner = self.buyers[winner_id]
 
-            # calculate seller profit
-            item.seller.profit += winner_payout - item.starting_price
+            if winner_id is not None:
+                winner = self.buyers[winner_id]
 
-            # calculate buyer profit
-            winner.increase_profit(item, winner_payout)
+                # calculate seller profit
+                item.seller.profit += winner_payout - item.starting_price
 
-            # decide which one to decommit
-            if self.auction_type == auction_leveled and winner in winners:
+                # calculate buyer profit
+                winner.increase_profit(item, winner_payout)
 
-                worst_buy = winner.get_least_profitable_buy()
-                fee = self.penalty_factor * worst_buy['winner_payout']
+                # decide which one to decommit
+                if self.auction_type == auction_leveled and winner in winners:
 
-                item.seller.profit += fee
-                winner.profit -= fee
+                    worst_buy = winner.get_least_profitable_buy()
+                    fee = self.penalty_factor * worst_buy['winner_payout']
 
-            winners.append(winner)
+                    item.seller.profit += fee
+                    winner.profit -= fee
 
-            if self.auction_type == auction_pure:
-                # remove winning buyer from the available buyers
-                current_round.available_buyers.pop(current_round.available_buyers.index(winner))
+                winners.append(winner)
+
+                if self.auction_type == auction_pure:
+                    # remove winning buyer from the available buyers
+                    current_round.available_buyers.pop(current_round.available_buyers.index(winner))
 
             # remove sold item from seller's stock
             item.seller.remove_item_from_stock(item)
+
+            if self.bidding_strategy == bidding_advanced:
+                self.change_bidding_factors(winner, item)
 
         for seller in self.sellers:
             print("Seller: {} earned a profit of {} after round {}"
@@ -141,6 +162,22 @@ class Auction:
         print("_______________________________________________\n")
 
         self.current_round_number += 1
+
+    def change_bidding_factors(self, winner, item):
+        seller = item.seller
+        overbidders_ids = item.get_overbidders_ids()
+        underbidders_ids = item.get_underbidders_ids()
+
+        for id in overbidders_ids:
+            buyer = self.buyers[int(id)]
+            buyer.change_bidding_by_factor(seller, self.bid_decrease_factor)
+
+        for id in underbidders_ids:
+            buyer = self.buyers[int(id)]
+            if buyer is winner:
+                buyer.change_bidding_by_factor(seller, self.bid_decrease_factor)
+            else:
+                buyer.change_bidding_by_factor(seller, self.bid_increase_factor)
 
 
 class Round:
@@ -193,11 +230,13 @@ class Buyer:
     profit = 0.0
     current_profits = None
     bidding_factors = None
+    bidding_strategy = None
 
-    def __init__(self, id, number_sellers):
+    def __init__(self, id, number_sellers, bidding_strategy):
         self.id = id
         self.items_bought = []
         self.current_profits = []
+        self.bidding_strategy = bidding_strategy
 
         self.initialize_bidding_factors(number_sellers)
 
@@ -212,8 +251,9 @@ class Buyer:
     def calculate_bid(self, item):
         seller_id = item.seller.id
         bidding_factor = self.bidding_factors[seller_id]
+        bid = bidding_factor * item.starting_price
 
-        return bidding_factor * item.starting_price
+        return bid
 
     def increase_profit(self, item, winner_payout):
         profit = item.get_market_price() - winner_payout
@@ -227,6 +267,9 @@ class Buyer:
 
     def get_least_profitable_buy(self):
         return sorted(self.current_profits, key=lambda x: x['profit'])[0]
+
+    def change_bidding_by_factor(self, seller, factor):
+        self.bidding_factors[seller.id] *= factor
 
 
 
@@ -255,10 +298,13 @@ class Item:
         self.current_bids = np.array(self.current_bids)
         self.market_price.append(np.average(self.current_bids[:, 1]))
 
-    def get_winner_id_and_payout(self, round_number=None):
-        current_market_price = self.get_market_price(round_number)
-        eligible_buyers = self.current_bids[self.current_bids[:, 1] <= current_market_price]
+    def get_winner_id_and_payout(self):
+        current_market_price = self.get_market_price()
+        eligible_buyers = self.current_bids[self.current_bids[:, 1] < current_market_price]
         eligible_buyers = eligible_buyers[eligible_buyers[:, 1].argsort()[::-1]]
+
+        if len(eligible_buyers) == 0:
+            return None, None
 
         winner_id = eligible_buyers[0][0]
 
@@ -268,6 +314,14 @@ class Item:
             winner_payout = eligible_buyers[0][1]
 
         return int(winner_id), winner_payout
+
+    def get_overbidders_ids(self):
+        current_market_price = self.get_market_price()
+        return self.current_bids[self.current_bids[:, 1] >= current_market_price][:,0]
+
+    def get_underbidders_ids(self):
+        current_market_price = self.get_market_price()
+        return self.current_bids[self.current_bids[:, 1] < current_market_price][:,0]
 
     def get_market_price(self, round_number=None):
         if round_number is None:
@@ -282,6 +336,6 @@ if __name__ == "__main__":
     n_rounds = 1
 
     # auction = Auction(auction_pure, price_type_random)
-    auction = Auction(auction_leveled, price_type_random)
+    auction = Auction(auction_leveled, price_type_random, bidding_advanced)
     auction.execute_next_round()
     auction.execute_next_round()
