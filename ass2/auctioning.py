@@ -2,6 +2,7 @@ from numpy import random
 import numpy as np
 from copy import copy
 
+
 auction_pure = "Pure"
 auction_leveled = "Leveled"
 
@@ -29,7 +30,6 @@ bidding_strategy_types = [
 ]
 
 
-
 class Auction:
     n_sellers = None
     n_buyers = None
@@ -40,6 +40,8 @@ class Auction:
     sellers = None
     buyers = None
     rounds = None
+
+    market_history = None
 
     def __init__(self,
                  auction_type,
@@ -69,6 +71,8 @@ class Auction:
         self.initialize_sellers()
         self.initialize_buyers()
         self.initialize_rounds()
+
+        self.market_history = np.zeros((number_sellers, number_rounds))
 
     def initialize_sellers(self):
         self.sellers = []
@@ -109,8 +113,9 @@ class Auction:
             item.reset_current_bids()
             for buyer in current_round.available_buyers:
                 item.add_bid(buyer)
-            # compute market price of the item
+            # compute market price of the item & add to the history for statistical purposes
             item.calculate_market_price()
+            self.market_history[item.seller.id][current_round.id] = item.get_market_price()
 
             # determine the winner
             winner_id, winner_payout = item.get_winner_id_and_payout()
@@ -131,6 +136,7 @@ class Auction:
                     fee = self.penalty_factor * worst_buy['winner_payout']
 
                     item.seller.profit += fee
+                    # TODO should the seller also return the paid amount when a winner backs out?
                     winner.profit -= fee
 
                 winners.append(winner)
@@ -157,7 +163,22 @@ class Auction:
 
         print("")
 
-        print("TODO: Item market price development across rounds")
+        # print("TODO: Item market price development across rounds")
+        if current_round.id > 0:
+            for seller in self.sellers:
+                first_market_price = self.market_history[seller.id][0]
+                previous_market_price = self.market_history[seller.id][current_round.id - 1]
+                current_market_price = self.market_history[seller.id][current_round.id]
+
+                start_to_round_change = round((current_market_price / first_market_price) * 100, 2)
+                one_step_change = round(current_market_price - previous_market_price, 2)
+
+                print("Market price for seller {s} changed by {mp}"
+                      .format(s=seller.id, mp=one_step_change))
+
+                if current_round.id > 1:
+                    print("Market price for seller {s} now is {mp}% of first round"
+                          .format(s=seller.id, mp=start_to_round_change))
 
         print("_______________________________________________\n")
 
@@ -178,6 +199,9 @@ class Auction:
                 buyer.change_bidding_by_factor(seller, self.bid_decrease_factor)
             else:
                 buyer.change_bidding_by_factor(seller, self.bid_increase_factor)
+
+    def get_market_history(self):
+        return self.market_history
 
 
 class Round:
@@ -272,7 +296,6 @@ class Buyer:
         self.bidding_factors[seller.id] *= factor
 
 
-
 class Item:
     starting_price = None
     market_price = None  # price per round
@@ -283,6 +306,7 @@ class Item:
     def __init__(self, seller):
         self.seller = seller
         self.market_price = []
+        self.market_history = []
         self.current_bids = []
 
     def set_starting_price(self, price):
@@ -331,11 +355,26 @@ class Item:
 
 
 if __name__ == "__main__":
-    n_sellers = 5
-    n_buyers = 10
-    n_rounds = 1
+    n_sellers = 2
+    n_buyers = 3
+    n_rounds = 10
 
     # auction = Auction(auction_pure, price_type_random)
-    auction = Auction(auction_leveled, price_type_random, bidding_advanced)
-    auction.execute_next_round()
-    auction.execute_next_round()
+    auction = Auction(auction_leveled,
+                      price_type_random,
+                      bidding_advanced,
+                      number_buyers=n_buyers,
+                      number_sellers=n_sellers,
+                      number_rounds=n_rounds)
+
+    for _ in range(n_rounds):
+        auction.execute_next_round()
+
+    history = auction.get_market_history()
+    for seller in auction.sellers:
+        print('Seller ', seller.id, end=' || ')
+        seller_history = history[seller.id]
+        for i in range(n_rounds):
+            print(round(seller_history[i], 2), end='\t| ')
+        print()
+

@@ -288,6 +288,7 @@ def parse_vector(pref_vec):
 
     return pv.tolist()
 
+
 def parse_single_vector(voter, pref_vec):
     global custom_preference_vector
     if custom_preference_vector is None:
@@ -337,15 +338,18 @@ def generate_random_preference_matrix():
 
     preference_vector_input.set_text(str(custom_preference_vector))
 
+
 def set_n_voters(n):
     global n_voters
     n_voters = n
     number_votes_input.set_text(str(n_voters))
 
+
 def set_n_preferences(n):
     global n_preferences
     n_preferences = n
     number_preferences_input.set_text(str(n_preferences))
+
 
 if __name__ == "__main__":
     init_settings()
