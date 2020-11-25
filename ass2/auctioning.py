@@ -42,7 +42,11 @@ class Auction:
     buyers = None
     rounds = None
 
+    starting_prices = None
     market_history = None
+    buyer_history = None
+    seller_history = None
+    market_price_analytics = None
 
     def __init__(self,
                  auction_type,
@@ -73,7 +77,11 @@ class Auction:
         self.initialize_buyers()
         self.initialize_rounds()
 
+        self.starting_prices = np.zeros(number_sellers)
         self.market_history = np.zeros((number_sellers, number_rounds))
+        self.buyer_history = np.zeros((number_buyers, number_rounds))
+        self.seller_history = np.zeros((number_sellers, number_rounds))
+        self.market_price_analytics = ""
 
     def initialize_sellers(self):
         self.sellers = []
@@ -101,6 +109,7 @@ class Auction:
     def execute_next_round(self):
         current_round = self.rounds[self.current_round_number]
         winners = []
+        item_tracker = 0
         # add items to the round
         for seller in self.sellers:
             current_round.available_items.append(seller.get_random_item())
@@ -111,6 +120,9 @@ class Auction:
 
         # place bids on items
         for item in current_round.available_items:
+            if current_round.id == 0:
+                self.starting_prices[item_tracker] = item.starting_price
+                item_tracker += 1
             item.reset_current_bids()
             for buyer in current_round.available_buyers:
                 item.add_bid(buyer)
@@ -139,7 +151,6 @@ class Auction:
                     # TODO should the seller also return the paid amount when a winner backs out?
                     # TODO Yes. The seller does not win anything yet officially.
                     winner.profit -= fee
-
                 winners.append(winner)
 
                 if self.auction_type == auction_pure:
@@ -149,18 +160,20 @@ class Auction:
             # remove sold item from seller's stock
             item.seller.remove_item_from_stock(item)
 
-            if self.bidding_strategy == bidding_advanced:
+            if self.bidding_strategy == bidding_advanced and "winner" in locals():
                 self.change_bidding_factors(winner, item)
 
         for seller in self.sellers:
             print("Seller: {} earned a profit of {} after round {}"
                   .format(seller.id, np.around(seller.profit, 2), self.current_round_number))
+            self.seller_history[seller.id][current_round.id] = seller.profit
 
         print("")
 
         for buyer in self.buyers:
             print("Buyer: {} earned a profit of {} after round {}"
                   .format(buyer.id, np.around(buyer.profit, 2), self.current_round_number))
+            self.buyer_history[buyer.id][current_round.id] = buyer.profit
 
         print("")
 
@@ -171,16 +184,20 @@ class Auction:
                 previous_market_price = self.market_history[seller.id][
                     current_round.id - 1 if current_round.id > 0 else 0]
                 current_market_price = self.market_history[seller.id][current_round.id]
-
-                start_to_round_change = round((current_market_price / first_market_price) * 100, 2)
+                if first_market_price != 0:
+                    start_to_round_change = round((current_market_price / first_market_price) * 100, 2)
+                else:
+                    start_to_round_change = 0.00
                 one_step_change = round(current_market_price - previous_market_price, 2)
 
                 print("Market price for seller {s} changed by {mp}"
                       .format(s=seller.id, mp=one_step_change))
 
                 if current_round.id > 1:
-                    print("Market price for seller {s} now is {mp}% of first round"
+                    print("Market price for seller {s} now is {mp}% of first round\n"
                           .format(s=seller.id, mp=start_to_round_change))
+                    self.market_price_analytics += "Round {r}: Seller {s} changed by {mp}%\n" \
+                        .format(r=current_round.id, s=seller.id, mp=start_to_round_change)
 
         print("_______________________________________________\n")
 
@@ -204,6 +221,9 @@ class Auction:
 
     def get_market_history(self):
         return self.market_history
+
+    def __str__(self):
+        return "Starting prices:\n" + str(self.starting_prices) + "\nBuyer profits over rounds:\n" + str(self.buyer_history) + "\nSeller profits over rounds:\n" + str(self.seller_history) + "\nSeller analytics:\n" + str(self.market_price_analytics)
 
 
 class Round:
@@ -391,3 +411,5 @@ if __name__ == "__main__":
     ax.set_xlabel("Round number")
     ax.set_ylabel("Cumulative Seller Profits")
     plt.show()
+
+    print(auction)
