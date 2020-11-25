@@ -1,7 +1,8 @@
 from numpy import random
 import numpy as np
 from copy import copy
-
+import matplotlib.pyplot as plt
+import pandas as pd
 
 auction_pure = "Pure"
 auction_leveled = "Leveled"
@@ -52,8 +53,8 @@ class Auction:
                  number_rounds=2,
                  penalty_factor=0.1,
                  bid_increase_factor=1.2,
-                 bid_decrease_factor=0.1,
-                 max_starting_price=100,):
+                 bid_decrease_factor=0.9,
+                 max_starting_price=100, ):
         self.n_sellers = number_sellers
         self.n_buyers = number_buyers
         self.n_rounds = number_rounds
@@ -131,12 +132,12 @@ class Auction:
 
                 # decide which one to decommit
                 if self.auction_type == auction_leveled and winner in winners:
-
                     worst_buy = winner.get_least_profitable_buy()
                     fee = self.penalty_factor * worst_buy['winner_payout']
 
                     item.seller.profit += fee
                     # TODO should the seller also return the paid amount when a winner backs out?
+                    # TODO Yes. The seller does not win anything yet officially.
                     winner.profit -= fee
 
                 winners.append(winner)
@@ -167,7 +168,8 @@ class Auction:
         if current_round.id > 0:
             for seller in self.sellers:
                 first_market_price = self.market_history[seller.id][0]
-                previous_market_price = self.market_history[seller.id][current_round.id - 1]
+                previous_market_price = self.market_history[seller.id][
+                    current_round.id - 1 if current_round.id > 0 else 0]
                 current_market_price = self.market_history[seller.id][current_round.id]
 
                 start_to_round_change = round((current_market_price / first_market_price) * 100, 2)
@@ -247,6 +249,8 @@ class Seller:
     def remove_item_from_stock(self, item):
         self.items_stock.pop(self.items_stock.index(item))
         self.items_sold.append(item)
+
+    # TODO Seller can adjust price in an auction - add as a gui option?
 
 
 class Buyer:
@@ -341,11 +345,11 @@ class Item:
 
     def get_overbidders_ids(self):
         current_market_price = self.get_market_price()
-        return self.current_bids[self.current_bids[:, 1] >= current_market_price][:,0]
+        return self.current_bids[self.current_bids[:, 1] >= current_market_price][:, 0]
 
     def get_underbidders_ids(self):
         current_market_price = self.get_market_price()
-        return self.current_bids[self.current_bids[:, 1] < current_market_price][:,0]
+        return self.current_bids[self.current_bids[:, 1] < current_market_price][:, 0]
 
     def get_market_price(self, round_number=None):
         if round_number is None:
@@ -355,8 +359,8 @@ class Item:
 
 
 if __name__ == "__main__":
-    n_sellers = 2
-    n_buyers = 3
+    n_sellers = 6
+    n_buyers = 5
     n_rounds = 10
 
     # auction = Auction(auction_pure, price_type_random)
@@ -369,12 +373,21 @@ if __name__ == "__main__":
 
     for _ in range(n_rounds):
         auction.execute_next_round()
-
     history = auction.get_market_history()
     for seller in auction.sellers:
         print('Seller ', seller.id, end=' || ')
         seller_history = history[seller.id]
         for i in range(n_rounds):
-            print(round(seller_history[i], 2), end='\t| ')
+            print(round(seller_history[i]), end='\t| ')
         print()
 
+    df = pd.DataFrame(history)
+    df.columns = ["Round " + str(i) for i in range(n_rounds)]
+    df = df.transpose()
+    df.columns = ["Seller " + str(i) for i in range(n_sellers)]
+    print(df.describe())  # seller statistics
+    # print(df[:])
+    ax = df.plot(kind="area", title="Stacked seller profits per round")
+    ax.set_xlabel("Round number")
+    ax.set_ylabel("Cumulative Seller Profits")
+    plt.show()
