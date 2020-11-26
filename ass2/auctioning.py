@@ -359,7 +359,7 @@ class Item:
         if eligible_buyers.shape[0] > 1:
             winner_payout = eligible_buyers[1][1]
         else:
-            winner_payout = eligible_buyers[0][1]
+            winner_payout = (eligible_buyers[0][1] + self.starting_price)/2
 
         return int(winner_id), winner_payout
 
@@ -384,7 +384,7 @@ if __name__ == "__main__":
     n_rounds = 10
 
     # auction = Auction(auction_pure, price_type_random)
-    auction = Auction(auction_leveled,
+    auction = Auction(auction_pure,
                       price_type_random,
                       bidding_advanced,
                       number_buyers=n_buyers,
