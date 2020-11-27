@@ -32,7 +32,8 @@ def init_ui(screen_size):
 
 
 def create_text_box(pygame, ui_manager, size=(250, 200), position=(520, 10), font_size=5):
-    return UITextBox('<font face=Montserrat size=' + str(font_size) + ' color=#000000><b>Instructions:</b><br>Firstly, select the voting type in the runtime section and accompanying tactical voting strategy. Note that no tactical voting can also be selected.<br>Then, please enter the number of voters and candidates, then either manually type in or use the randomly generated a preference vector.<br>Press the <b>Generate voters table</b> button to view the table. The <b>Execute voting conditions</b> button calculates the results in this panel.<br><br><br><b>Awaiting execution...</b></font>',
+    return UITextBox('<font face=Montserrat size=' + str(
+        font_size) + ' color=#000000><b>Instructions:</b><br>Firstly, select the voting type in the runtime section and accompanying tactical voting strategy. Note that no tactical voting can also be selected.<br>Then, please enter the number of voters and candidates, then either manually type in or use the randomly generated a preference vector.<br>Press the <b>Generate voters table</b> button to view the table. The <b>Execute voting conditions</b> button calculates the results in this panel.<br><br><br><b>Awaiting execution...</b></font>',
                      pygame.Rect(position, size),
                      manager=ui_manager,
                      object_id="#text_box_2")
@@ -40,9 +41,9 @@ def create_text_box(pygame, ui_manager, size=(250, 200), position=(520, 10), fon
 
 def create_text_display(pygame, ui_manager, size=(250, 100), position=(520, 10), font_size=5):
     return UILabel(pygame.Rect(position, size),
-                                   "",
-                                   manager=ui_manager,
-                                   object_id='#fps_counter')
+                   "",
+                   manager=ui_manager,
+                   object_id='#fps_counter')
 
 
 def create_button(pygame, ui_manager, text='', position=(30, 20), size=(100, 20)):
@@ -82,3 +83,27 @@ def create_dropdown_button(pygame, ui_manager, opt_list=['No options'], first_op
         relative_rect=dropdown_layout_rect,
         manager=ui_manager
     )
+
+
+def create_image_display(pygame, ui_manager, image_path, position=(30, 20), size=(100, 20)):
+    # TODO check whether image exists
+    graph_img = pygame.image.load(image_path).convert_alpha()
+    image_rect = graph_img.get_rect()
+    image_rect.center = position
+    image_rect.size = size
+
+    graph_img = pygame.transform.smoothscale(graph_img,
+                                                image_rect.size)
+
+
+    # image_layout_rect = pygame.Rect(position, size)
+    # image_surface = pygame.surface.Surface(size)
+    # image_surface.blit(graph_img, position)
+
+    uimage = UIImage(
+        relative_rect=image_rect,
+        manager=ui_manager,
+        image_surface=graph_img
+    )
+    uimage.visible = False
+    return uimage

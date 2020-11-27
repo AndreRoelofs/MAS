@@ -5,9 +5,11 @@ from ass1.helpers import *
 from ast import literal_eval
 import numpy as np
 from numpy import random
-from ass2.auctioning import auctioning_types, start_price_types
+import pandas as pd
+import matplotlib.pyplot as plt
+from ass2.auctioning import auctioning_types, start_price_types, Auction
 
-import ass1.gui as gui
+import ass2.gui as gui
 
 config = None
 screen_size = None
@@ -34,6 +36,34 @@ randomize_n_rounds_button = None
 
 auctioning_type_dropdown = None
 start_price_type_dropdown = None
+
+execute_button = None
+
+auction_pure = "Pure"
+auction_leveled = "Leveled"
+
+auctioning_types = [
+    auction_pure,
+    auction_leveled
+]
+
+price_type_random = "Random"
+price_type_own_good = "Own good"
+price_type_common_good = "Common good"
+
+start_price_types = [
+    price_type_random,
+    price_type_own_good,
+    price_type_common_good,
+]
+
+bidding_standard = "Standard"
+bidding_advanced = "Advanced"
+
+bidding_strategy_types = [
+    bidding_standard,
+    bidding_advanced,
+]
 
 
 # parameters
@@ -179,10 +209,50 @@ def create_auction_settings_ui():
                                                            size=(int(left_offset * 9.0), int(top_offset * 1.0)))
 
 
+def create_runtime_buttons():
+    global execute_button
+    execute_button = gui.create_button(pygame, ui_manager, text='Execute',
+                      size=(int(left_offset * 4.0), int(top_offset * 1.0)),
+                      position=(int(left_offset * 1.0), int(top_offset * 12)))
 
 
+def execute_auction(nb, ns, nr):
+    auction = Auction(auction_pure,
+                      price_type_random,
+                      bidding_advanced,
+                      number_buyers=nb,
+                      number_sellers=ns,
+                      number_rounds=nr)
+
+    for _ in range(nr):
+        auction.execute_next_round()
+    history = auction.get_market_history()
+    create_image(history, nr, ns)
 
 
+def create_image(history, nr, ns):
+    df = pd.DataFrame(history)
+    df.columns = ["Round " + str(i) for i in range(nr)]
+    df = df.transpose()
+    df.columns = ["Seller " + str(i) for i in range(ns)]
+    print(df.describe())  # seller statistics
+    # print(df[:])
+    ax = df.plot(kind="area", title="Stacked seller profits per round")
+    ax.set_xlabel("Round number")
+    ax.set_ylabel("Cumulative Seller Profits")
+    image_path = "data/images/graph_output/graph.png"
+    plt.savefig(image_path)
+
+    graph_img = pygame.image.load(image_path).convert_alpha()
+    image_rect = image_display.rect
+
+    graph_img = pygame.transform.smoothscale(graph_img,
+                                             image_rect.size)
+
+    image_display.set_image(graph_img)
+    image_display.visible = True
+
+    print("done?")
 
 
 if __name__ == "__main__":
@@ -195,6 +265,12 @@ if __name__ == "__main__":
 
     create_auction_settings_ui()
 
+    create_runtime_buttons()
+
+    image_display = gui.create_image_display(pygame, ui_manager,
+                                             image_path="data/images/graph_output/graph_56.png",
+                                             size=(int(left_offset * 9.3), int(top_offset * 6.0)),
+                                             position=(int(left_offset * 12.0), int(top_offset * 16.5)))
 
     running = True
 
@@ -209,6 +285,12 @@ if __name__ == "__main__":
 
             if event.type == pygame.USEREVENT:
                 test = 0
+                if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
+                    if event.ui_element == execute_button:
+                        ns = int(number_sellers_input.get_text())
+                        nb = int(number_buyers_input.get_text())
+                        nr = int(number_rounds_input.get_text())
+                        execute_auction(nb, ns, nr)
 
                 # Input parsing
                 if event.user_type == pygame_gui.UI_TEXT_ENTRY_CHANGED:
