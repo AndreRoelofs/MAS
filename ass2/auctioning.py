@@ -236,7 +236,7 @@ class Auction:
         self.seller_statistics = ""
         df_buyers = pd.DataFrame(self.buyer_history)
         df_buyers.columns = ["Round " + str(i) for i in range(len(self.rounds))]
-        df_buyers = df_sellers.transpose()
+        df_buyers = df_buyers.transpose()
         df_buyers.columns = ["Buyer " + str(i) for i in range(len(self.buyers))]
         self.buyer_statistics = ""
         for i in range(len(self.starting_prices)):
