@@ -239,18 +239,22 @@ class Auction:
         df_buyers.columns = ["Buyer " + str(i) for i in range(len(self.buyers))]
         self.buyer_statistics = ""
         for i in range(len(self.starting_prices)):
-            item_starting_price_string += "Item {} Starting Price:\n<i>{}</i>\n".format(i, np.around(self.starting_prices[i],2))
+            item_starting_price_string += "Item {} Starting Price:\n<i>{}</i>\n".format(i, np.around(
+                self.starting_prices[i], 2))
         for i in range(len(self.buyer_history)):
             for j in range(len(self.buyer_history[0])):
-                buyer_history_string += "Buyer {} Profit:\nRound {}: <i>{}</i>\n".format(i, j, np.around(self.buyer_history[i][j],2))
+                buyer_history_string += "Buyer {} Profit:\nRound {}: <i>{}</i>\n".format(i, j, np.around(
+                    self.buyer_history[i][j], 2))
         for i in range(len(self.seller_history)):
             for j in range(len(self.seller_history[0])):
-                seller_history_string += "Seller {} Profit:\nRound {}: <i>{}</i>\n".format(i, j, np.around(self.seller_history[i][j],2))
+                seller_history_string += "Seller {} Profit:\nRound {}: <i>{}</i>\n".format(i, j, np.around(
+                    self.seller_history[i][j], 2))
 
         for i in range(len(self.sellers)):
-            values = df_sellers.iloc[:,i]
+            values = df_sellers.iloc[:, i]
             values = [values.mean(), values.std(), values.min(), values.max()]
-            self.seller_statistics += "Seller {}:\nMean profit: <i>{}</i>\nStandard deviation: <i>{}</i>\nMin profit: <i>{}</i>\nMax profit:  <i>{}</i>\n".format(i, np.around(values[0],2), np.around(values[1],2), np.around(values[2],2), np.around(values[3],2))
+            self.seller_statistics += "Seller {}:\nMean profit: <i>{}</i>\nStandard deviation: <i>{}</i>\nMin profit: <i>{}</i>\nMax profit:  <i>{}</i>\n".format(
+                i, np.around(values[0], 2), np.around(values[1], 2), np.around(values[2], 2), np.around(values[3], 2))
 
         for i in range(len(self.buyers)):
             values = df_buyers.iloc[:, i]
@@ -258,9 +262,12 @@ class Auction:
             self.buyer_statistics += "Buyer {}:\nMean profit: <i>{}</i>\nStandard deviation: <i>{}</i>\nMin profit: <i>{}</i>\nMax profit:  <i>{}</i>\n".format(
                 i, np.around(values[0], 2), np.around(values[1], 2), np.around(values[2], 2), np.around(values[3], 2))
 
-        output = "<b>Starting prices:</b>\n{}\n<b>Buyer profits over rounds:</b>\n{}\n<b>Buyer statistics</b>:\n{}\n<b>Seller profits over rounds:</b>\n{}\n<b>Seller analytics:</b>\n{}\n<b>Seller statistics</b>:\n{}".format(item_starting_price_string, buyer_history_string, self.buyer_statistics, seller_history_string, self.market_price_analytics, self.seller_statistics)
+        output = "<b>Starting prices:</b>\n{}\n<b>Buyer profits over rounds:</b>\n{}\n<b>Buyer statistics</b>:\n{}\n<b>Seller profits over rounds:</b>\n{}\n<b>Seller analytics:</b>\n{}\n<b>Seller statistics</b>:\n{}".format(
+            item_starting_price_string, buyer_history_string, self.buyer_statistics, seller_history_string,
+            self.market_price_analytics, self.seller_statistics)
 
         return output
+
 
 class Round:
     id = None
@@ -395,7 +402,7 @@ class Item:
         if eligible_buyers.shape[0] > 1:
             winner_payout = eligible_buyers[1][1]
         else:
-            winner_payout = (eligible_buyers[0][1] + self.starting_price)/2
+            winner_payout = (eligible_buyers[0][1] + self.starting_price) / 2
 
         return int(winner_id), winner_payout
 
