@@ -193,7 +193,7 @@ class Auction:
                 print("Market price for seller {s} changed by {mp}"
                       .format(s=seller.id, mp=one_step_change))
 
-                if current_round.id > 1:
+                if current_round.id > 0:
                     print("Market price for seller {s} now is {mp}% of first round\n"
                           .format(s=seller.id, mp=start_to_round_change))
                     self.market_price_analytics += "Round {r}: Seller {s} profit changed by {mp}%\n" \
