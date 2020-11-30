@@ -232,8 +232,7 @@ class Auction:
         df.columns = ["Round " + str(i) for i in range(len(self.rounds))]
         df = df.transpose()
         df.columns = ["Seller " + str(i) for i in range(len(self.sellers))]
-        pd.set_option('float_format', '{:.2f}'.format)
-        self.statistics = df.describe(include="all")  # seller statistics
+        self.statistics = ""
         for i in range(len(self.starting_prices)):
             item_starting_price_string += "Item {} Starting Price:\n<i>{}</i>\n".format(i, np.around(self.starting_prices[i],2))
         for i in range(len(self.buyer_history)):
@@ -242,6 +241,11 @@ class Auction:
         for i in range(len(self.seller_history)):
             for j in range(len(self.seller_history[0])):
                 seller_history_string += "Seller {} Profit:\nRound {}: <i>{}</i>\n".format(i, j, np.around(self.seller_history[i][j],2))
+
+        for i in range(len(self.sellers)):
+            values = df.iloc[:,i]
+            values = [values.mean(), values.std(), values.min(), values.max()]
+            self.statistics += "Seller {}:\nMean profit: <i>{}</i>\nStandard deviation: <i>{}</i>\nMin profit: <i>{}</i>\nMax profit:  <i>{}</i>\n".format(i, np.around(values[0],2), np.around(values[1],2), np.around(values[2],2), np.around(values[3],2))
         output = "<b>Starting prices:</b>\n{}\n<b>Buyer profits over rounds:</b>\n{}\n<b>Seller profits over rounds:</b>\n{}\n<b>Seller analytics:</b>\n{}\n<b>Seller statistics</b>:\n{}".format(item_starting_price_string, buyer_history_string, seller_history_string, self.market_price_analytics, self.statistics)
 
         return output
