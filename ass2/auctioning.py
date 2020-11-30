@@ -47,6 +47,7 @@ class Auction:
     buyer_history = None
     seller_history = None
     market_price_analytics = None
+    statistics = None
 
     def __init__(self,
                  auction_type,
@@ -227,6 +228,12 @@ class Auction:
         item_starting_price_string = ""
         buyer_history_string = ""
         seller_history_string = ""
+        df = pd.DataFrame(self.market_history)
+        df.columns = ["Round " + str(i) for i in range(len(self.rounds))]
+        df = df.transpose()
+        df.columns = ["Seller " + str(i) for i in range(len(self.sellers))]
+        pd.set_option('float_format', '{:.2f}'.format)
+        self.statistics = df.describe(include="all")  # seller statistics
         for i in range(len(self.starting_prices)):
             item_starting_price_string += "Item {} Starting Price:\n<i>{}</i>\n".format(i, np.around(self.starting_prices[i],2))
         for i in range(len(self.buyer_history)):
@@ -234,8 +241,8 @@ class Auction:
                 buyer_history_string += "Buyer {} Profit:\nRound {}: <i>{}</i>\n".format(i, j, np.around(self.buyer_history[i][j],2))
         for i in range(len(self.seller_history)):
             for j in range(len(self.seller_history[0])):
-                seller_history_string += "Buyer {} Profit:\nRound {}: <i>{}</i>\n".format(i, j, np.around(self.seller_history[i][j],2))
-        output = "<b>Starting prices:</b>\n{}\n<b>Buyer profits over rounds:</b>\n{}\n<b>Seller profits over rounds:</b>\n{}\n<b>Seller analytics:</b>\n{}".format(item_starting_price_string, buyer_history_string, seller_history_string, self.market_price_analytics)
+                seller_history_string += "Seller {} Profit:\nRound {}: <i>{}</i>\n".format(i, j, np.around(self.seller_history[i][j],2))
+        output = "<b>Starting prices:</b>\n{}\n<b>Buyer profits over rounds:</b>\n{}\n<b>Seller profits over rounds:</b>\n{}\n<b>Seller analytics:</b>\n{}\n<b>Seller statistics</b>:\n{}".format(item_starting_price_string, buyer_history_string, seller_history_string, self.market_price_analytics, self.statistics)
 
         return output
 
