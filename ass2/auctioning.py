@@ -225,7 +225,6 @@ class Auction:
         return self.market_history
 
     def __str__(self):
-        output = "Starting prices:\n" + str(self.starting_prices) + "\nBuyer profits over rounds:\n" + str(self.buyer_history) + "\nSeller profits over rounds:\n" + str(self.seller_history) + "\nSeller analytics:\n" + str(self.market_price_analytics)
         item_starting_price_string = ""
         buyer_history_string = ""
         seller_history_string = ""
