@@ -7,7 +7,7 @@ import numpy as np
 from numpy import random
 import pandas as pd
 import matplotlib.pyplot as plt
-from ass2.auctioning import auctioning_types, start_price_types, Auction
+from ass2.auctioning import *
 
 import ass2.gui as gui
 
@@ -38,33 +38,6 @@ auctioning_type_dropdown = None
 start_price_type_dropdown = None
 
 execute_button = None
-
-auction_pure = "Pure"
-auction_leveled = "Leveled"
-
-auctioning_types = [
-    auction_pure,
-    auction_leveled
-]
-
-price_type_random = "Random"
-price_type_own_good = "Own good"
-price_type_common_good = "Common good"
-
-start_price_types = [
-    price_type_random,
-    price_type_own_good,
-    price_type_common_good,
-]
-
-bidding_standard = "Standard"
-bidding_advanced = "Advanced"
-
-bidding_strategy_types = [
-    bidding_standard,
-    bidding_advanced,
-]
-
 
 # parameters
 n_sellers = 2
