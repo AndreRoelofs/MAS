@@ -228,6 +228,11 @@ def execute_auction(nb, ns, nr):
         auction.execute_next_round()
     history = auction.get_market_history()
     create_image(history, nr, ns)
+    auction_string = auction.__str__()
+    output_console.html_text = '<font face=Montserrat size=5 color=#000000>{}</font>'.format(
+        auction_string.replace('\n', '<br><br>'))
+    output_console.rebuild()
+    output_console.full_redraw()
 
 
 def create_image(history, nr, ns):

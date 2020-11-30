@@ -33,7 +33,7 @@ def init_ui(screen_size):
 
 def create_text_box(pygame, ui_manager, size=(250, 200), position=(520, 10), font_size=5):
     return UITextBox('<font face=Montserrat size=' + str(
-        font_size) + ' color=#000000><b>Instructions:</b><br>Firstly, select the voting type in the runtime section and accompanying tactical voting strategy. Note that no tactical voting can also be selected.<br>Then, please enter the number of voters and candidates, then either manually type in or use the randomly generated a preference vector.<br>Press the <b>Generate voters table</b> button to view the table. The <b>Execute voting conditions</b> button calculates the results in this panel.<br><br><br><b>Awaiting execution...</b></font>',
+        font_size) + ' color=#000000><b>Instructions:</b><br>Set the number of buyers, sellers and rounds for a simulation. Select the type of auction and the starting price strategy.<br>Press the <b>Execute</b> button to simulate the auction. <br>The resulting graphs will be displayed on the bottom and accompanying text-based simulation results will be displayed in this console.<br><br><b>Awaiting execution...</b></font>',
                      pygame.Rect(position, size),
                      manager=ui_manager,
                      object_id="#text_box_2")
