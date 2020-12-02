@@ -157,7 +157,7 @@ def create_starting_conditions_ui():
                                            size=(int(left_offset * 3.0), int(top_offset * 0.6)),
                                            position=(int(left_offset * 5.5), int(top_offset * 5.5)))
     number_rounds_input.set_allowed_characters('numbers')
-    number_rounds_input.set_text_length_limit(3)
+    number_rounds_input.set_text_length_limit(5)
     number_rounds_input.set_text(str(n_rounds))
     randomize_n_rounds_button = gui.create_button(pygame, ui_manager, text='Randomize',
                                                   size=(int(left_offset * 6.0), int(top_offset * 1.0)),
