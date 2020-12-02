@@ -157,7 +157,7 @@ def create_starting_conditions_ui():
                                            size=(int(left_offset * 3.0), int(top_offset * 0.6)),
                                            position=(int(left_offset * 5.5), int(top_offset * 5.5)))
     number_rounds_input.set_allowed_characters('numbers')
-    number_rounds_input.set_text_length_limit(2)
+    number_rounds_input.set_text_length_limit(3)
     number_rounds_input.set_text(str(n_rounds))
     randomize_n_rounds_button = gui.create_button(pygame, ui_manager, text='Randomize',
                                                   size=(int(left_offset * 6.0), int(top_offset * 1.0)),
@@ -388,7 +388,7 @@ if __name__ == "__main__":
                     if event.ui_element == randomize_n_sellers_button:
                         set_n_random("sellers", upper=20)
                     if event.ui_element == randomize_n_rounds_button:
-                        set_n_random("rounds", upper=30)
+                        set_n_random("rounds", upper=999)
 
 
                 if event.user_type == pygame_gui.UI_DROP_DOWN_MENU_CHANGED:

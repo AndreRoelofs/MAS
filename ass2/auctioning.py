@@ -30,7 +30,6 @@ bidding_strategy_types = [
     bidding_advanced,
 ]
 
-
 class Auction:
     n_sellers = None
     n_buyers = None
