@@ -274,9 +274,11 @@ def execute_output():
 def create_image(history, nr, ns):
     global auction
     ax = None
+    selection = 0
     if history is None:
         history=auction.market_history
     if(current_output==output_market_prices or current_output==output_all):
+        selection = "_market"
         df = pd.DataFrame(history)
         df.columns = ["Round " + str(i) for i in range(nr)]
         df = df.transpose()
@@ -286,27 +288,33 @@ def create_image(history, nr, ns):
         ax = df.plot(kind="area", title="Stacked seller profits per round")
         ax.set_xlabel("Round number")
         ax.set_ylabel("Seller Profits")
-    if(current_output==output_seller_profits):
+    if(current_output==output_seller_profits or current_output==output_seller_statistics):
+        selection = "_sellers"
         df = pd.DataFrame(auction.seller_history)
         df.columns = ["Round " + str(i) for i in range(nr)]
         df = df.transpose()
         df.columns = ["Seller " + str(i) for i in range(ns)]
+        if(df.iloc[:,1].min() < 0.0):
+            return
         # print(df.describe())  # seller statistics
         # print(df[:])
         ax = df.plot(kind="area", title="Stacked cumulative seller profits over rounds")
         ax.set_xlabel("Round number")
         ax.set_ylabel("Cumulative Seller Profits")
-    if(current_output==output_buyer_profits):
+    if(current_output==output_buyer_profits or current_output==output_buyer_statistics):
+        selection = "_buyers"
         df = pd.DataFrame(auction.buyer_history)
         df.columns = ["Round " + str(i) for i in range(nr)]
         df = df.transpose()
         df.columns = ["Buyer " + str(i) for i in range(auction.n_buyers)]
+        if(df.iloc[:,1].min() < 0.0):
+            return
         # print(df.describe())  # seller statistics
         # print(df[:])
         ax = df.plot(kind="area", title="Stacked cumulative buyer profits over rounds")
         ax.set_xlabel("Round number")
         ax.set_ylabel("Cumulative Buyer Profits")
-    image_path = "data/images/graph_output/graph.png"
+    image_path = "data/images/graph_output/graph{}.png".format(selection)
     plt.savefig(image_path)
 
     graph_img = pygame.image.load(image_path).convert_alpha()
