@@ -420,7 +420,7 @@ if __name__ == "__main__":
                     if event.ui_element == randomize_n_sellers_button:
                         set_n_random("sellers", upper=20)
                     if event.ui_element == randomize_n_rounds_button:
-                        set_n_random("rounds", upper=999)
+                        set_n_random("rounds", upper=1000)
 
 
                 if event.user_type == pygame_gui.UI_DROP_DOWN_MENU_CHANGED:
