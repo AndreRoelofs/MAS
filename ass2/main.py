@@ -298,7 +298,7 @@ def create_image(history, nr, ns):
             return
         # print(df.describe())  # seller statistics
         # print(df[:])
-        ax = df.plot(kind="area", title="Stacked cumulative seller profits over rounds")
+        ax = df.plot(kind="line", title="Stacked cumulative seller profits over rounds")
         ax.set_xlabel("Round number")
         ax.set_ylabel("Cumulative Seller Profits")
     if(current_output==output_buyer_profits or current_output==output_buyer_statistics):
@@ -311,7 +311,7 @@ def create_image(history, nr, ns):
             return
         # print(df.describe())  # seller statistics
         # print(df[:])
-        ax = df.plot(kind="area", title="Stacked cumulative buyer profits over rounds")
+        ax = df.plot(kind="line", title="Stacked cumulative buyer profits over rounds")
         ax.set_xlabel("Round number")
         ax.set_ylabel("Cumulative Buyer Profits")
     image_path = "data/images/graph_output/graph{}.png".format(selection)
