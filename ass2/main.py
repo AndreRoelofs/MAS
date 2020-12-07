@@ -264,6 +264,7 @@ def execute_auction():
 def execute_output():
     global auction
     if auction is not None:
+        create_image(None, n_rounds, n_sellers)
         auction_string = auction.specific_str(current_output)
         output_console.html_text = '<font face=Montserrat size=5 color=#000000>{}</font>'.format(
             auction_string.replace('\n', '<br><br>'))
@@ -271,15 +272,40 @@ def execute_output():
         output_console.full_redraw()
 
 def create_image(history, nr, ns):
-    df = pd.DataFrame(history)
-    df.columns = ["Round " + str(i) for i in range(nr)]
-    df = df.transpose()
-    df.columns = ["Seller " + str(i) for i in range(ns)]
-    print(df.describe())  # seller statistics
-    # print(df[:])
-    ax = df.plot(kind="area", title="Stacked seller profits per round")
-    ax.set_xlabel("Round number")
-    ax.set_ylabel("Cumulative Seller Profits")
+    global auction
+    ax = None
+    if history is None:
+        history=auction.market_history
+    if(current_output==output_market_prices or current_output==output_all):
+        df = pd.DataFrame(history)
+        df.columns = ["Round " + str(i) for i in range(nr)]
+        df = df.transpose()
+        df.columns = ["Seller " + str(i) for i in range(ns)]
+        # print(df.describe())  # seller statistics
+        # print(df[:])
+        ax = df.plot(kind="area", title="Stacked seller profits per round")
+        ax.set_xlabel("Round number")
+        ax.set_ylabel("Seller Profits")
+    if(current_output==output_seller_profits):
+        df = pd.DataFrame(auction.seller_history)
+        df.columns = ["Round " + str(i) for i in range(nr)]
+        df = df.transpose()
+        df.columns = ["Seller " + str(i) for i in range(ns)]
+        # print(df.describe())  # seller statistics
+        # print(df[:])
+        ax = df.plot(kind="area", title="Stacked cumulative seller profits over rounds")
+        ax.set_xlabel("Round number")
+        ax.set_ylabel("Cumulative Seller Profits")
+    if(current_output==output_buyer_profits):
+        df = pd.DataFrame(auction.buyer_history)
+        df.columns = ["Round " + str(i) for i in range(nr)]
+        df = df.transpose()
+        df.columns = ["Buyer " + str(i) for i in range(auction.n_buyers)]
+        # print(df.describe())  # seller statistics
+        # print(df[:])
+        ax = df.plot(kind="area", title="Stacked cumulative buyer profits over rounds")
+        ax.set_xlabel("Round number")
+        ax.set_ylabel("Cumulative Buyer Profits")
     image_path = "data/images/graph_output/graph.png"
     plt.savefig(image_path)
 
@@ -292,7 +318,7 @@ def create_image(history, nr, ns):
     image_display.set_image(graph_img)
     image_display.visible = True
 
-    print("done?")
+    #print("done?")
 
 
 def set_n_random(id, upper):
