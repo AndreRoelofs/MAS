@@ -407,10 +407,10 @@ if __name__ == "__main__":
                         n_buyers = int(number_buyers_input.get_text())
                         n_rounds = int(number_rounds_input.get_text())
 
-                        bid_increase_factor = float(bid_increase_factor_input.get_text())
-                        bid_decrease_factor = float(bid_decrease_factor_input.get_text())
-                        refund_penalty_factor = float(refund_penalty_factor_input.get_text())
-                        max_starting_price = int(max_starting_price_input.get_text())
+                        bid_increase_factor = float(bid_increase_factor_input.get_text() if type(bid_increase_factor_input.get_text()) != str else 1.2)
+                        bid_decrease_factor = float(bid_decrease_factor_input.get_text() if type(bid_decrease_factor_input.get_text()) != str else 0.9)
+                        refund_penalty_factor = float(refund_penalty_factor_input.get_text() if type(refund_penalty_factor_input.get_text()) != str else 0.1)
+                        max_starting_price = int(max_starting_price_input.get_text() if type(max_starting_price_input.get_text()) != str else 1000.0)
 
                         execute_auction()
                     if event.ui_element == output_button:
