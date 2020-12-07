@@ -255,7 +255,7 @@ def execute_auction():
         auction.execute_next_round()
     history = auction.get_market_history()
     create_image(history, n_rounds, n_sellers)
-    auction_string = auction.__str__()
+    auction_string = auction.specific_str(current_output)
     output_console.html_text = '<font face=Montserrat size=5 color=#000000>{}</font>'.format(
         auction_string.replace('\n', '<br><br>'))
     output_console.rebuild()
@@ -432,6 +432,8 @@ if __name__ == "__main__":
                         current_pricing_type = start_price_type_dropdown.selected_option
                     if event.ui_element == bidding_strategy_dropdown:
                         current_bidding_strategy = bidding_strategy_dropdown.selected_option
+                    if event.ui_element == output_dropdown:
+                        current_output = output_dropdown.selected_option
 
                 # Input parsing
                 if event.user_type == pygame_gui.UI_TEXT_ENTRY_CHANGED:
