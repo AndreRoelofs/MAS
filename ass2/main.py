@@ -37,6 +37,7 @@ randomize_n_rounds_button = None
 auctioning_type_dropdown = None
 start_price_type_dropdown = None
 bidding_strategy_dropdown = None
+output_dropdown = None
 
 bid_increase_factor_input = None
 bid_decrease_factor_input = None
@@ -45,6 +46,7 @@ refund_penalty_factor_label = None
 max_starting_price_input = None
 
 execute_button = None
+output_button = None
 
 # parameters
 n_sellers = 2
@@ -53,6 +55,7 @@ n_rounds = 2
 current_auction_type = auction_pure
 current_pricing_type = price_type_random
 current_bidding_strategy = bidding_advanced
+current_output = output_all
 bid_increase_factor = 1.2
 bid_decrease_factor = 0.9
 refund_penalty_factor = 0.1
@@ -168,9 +171,11 @@ def create_auction_settings_ui():
     global auctioning_type_dropdown
     global start_price_type_dropdown
     global bidding_strategy_dropdown
+    global output_dropdown
     global current_pricing_type
     global current_auction_type
     global current_bidding_strategy
+    global current_output
 
     gui.create_label(pygame, ui_manager,
                      position=(int(left_offset * 1.0), int(top_offset * 7.0)),
@@ -208,12 +213,27 @@ def create_auction_settings_ui():
                                                            size=(int(left_offset * 9.0), int(top_offset * 1.0)))
     current_bidding_strategy = bidding_strategy_dropdown.selected_option
 
+    # output
+    gui.create_label(pygame, ui_manager, position=(int(left_offset * 1.0), int(top_offset * 13.0)),
+                     text='Output',
+                     size=(int(left_offset * 4.0), int(top_offset * 1.0)))
+
+    output_dropdown = gui.create_dropdown_button(pygame, ui_manager,
+                                                           opt_list=output_types,
+                                                           position=(int(left_offset * 6.0), int(top_offset * 13.0)),
+                                                           size=(int(left_offset * 9.0), int(top_offset * 1.0)))
+    current_output = output_dropdown.selected_option
 
 def create_runtime_buttons():
     global execute_button
+    global output_button
     execute_button = gui.create_button(pygame, ui_manager, text='Execute',
                                        size=(int(left_offset * 4.0), int(top_offset * 1.0)),
-                                       position=(int(left_offset * 1.0), int(top_offset * 13)))
+                                       position=(int(left_offset * 1.0), int(top_offset * 15)))
+
+    output_button = gui.create_button(pygame, ui_manager, text='Output',
+                                       size=(int(left_offset * 4.0), int(top_offset * 1.0)),
+                                       position=(int(left_offset * 11.0), int(top_offset * 15)))
 
 
 def execute_auction():
