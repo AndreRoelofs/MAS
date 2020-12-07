@@ -30,6 +30,7 @@ bidding_strategy_types = [
     bidding_advanced,
 ]
 
+
 class Auction:
     n_sellers = None
     n_buyers = None
@@ -264,6 +265,61 @@ class Auction:
         output = "<b>Starting prices:</b>\n{}\n<b>Buyer profits over rounds:</b>\n{}\n<b>Buyer statistics</b>:\n{}\n<b>Seller profits over rounds:</b>\n{}\n<b>Seller analytics:</b>\n{}\n<b>Seller statistics</b>:\n{}".format(
             item_starting_price_string, buyer_history_string, self.buyer_statistics, seller_history_string,
             self.market_price_analytics, self.seller_statistics)
+
+        return output
+
+    def specific_str(self, type):
+        if type.equals("seller_statistics"):
+            df_sellers = pd.DataFrame(self.market_history)
+            df_sellers.columns = ["Round " + str(i) for i in range(len(self.rounds))]
+            df_sellers = df_sellers.transpose()
+            df_sellers.columns = ["Seller " + str(i) for i in range(len(self.sellers))]
+            self.seller_statistics = ""
+            for i in range(len(self.sellers)):
+                values = df_sellers.iloc[:, i]
+                values = [values.mean(), values.std(), values.min(), values.max()]
+                self.seller_statistics += "Seller {}:\nMean profit: <i>{}</i>\nStandard deviation: <i>{}</i>\nMin profit: <i>{}</i>\nMax profit:  <i>{}</i>\n".format(
+                    i, np.around(values[0], 2), np.around(values[1], 2), np.around(values[2], 2),
+                    np.around(values[3], 2))
+            output = "<b>Seller statistics:</b>\n{}".format(self.seller_statistics)
+
+        if type.equals("buyer_statistics"):
+            df_buyers = pd.DataFrame(self.buyer_history)
+            df_buyers.columns = ["Round " + str(i) for i in range(len(self.rounds))]
+            df_buyers = df_buyers.transpose()
+            df_buyers.columns = ["Buyer " + str(i) for i in range(len(self.buyers))]
+            self.buyer_statistics = ""
+            for i in range(len(self.buyers)):
+                values = df_buyers.iloc[:, i]
+                values = [values.mean(), values.std(), values.min(), values.max()]
+                self.buyer_statistics += "Buyer {}:\nMean profit: <i>{}</i>\nStandard deviation: <i>{}</i>\nMin profit: <i>{}</i>\nMax profit:  <i>{}</i>\n".format(
+                    i, np.around(values[0], 2), np.around(values[1], 2), np.around(values[2], 2),
+                    np.around(values[3], 2))
+            output = "<b>Buyer statistics:</b>\n{}".format(self.buyer_statistics)
+
+        if type.equals("price_analytics"):
+            output = "<b>Seller analytics:</b>\n{}".format(self.market_price_analytics)
+
+        if type.equals("starting_prices"):
+            output = ""
+            for i in range(len(self.starting_prices)):
+                output += "Item {} Starting Price:\n<i>{}</i>\n".format(i, np.around(
+                    self.starting_prices[i], 2))
+
+        if type.equals("buyer_profits"):
+            output = "<b>Buyer profits:</b>\n"
+            for i in range(len(self.buyer_history)):
+                for j in range(len(self.buyer_history[0])):
+                    output += "Buyer {} Profit:\nRound {}: <i>{}</i>\n".format(i, j, np.around(
+                        self.buyer_history[i][j], 2))
+
+        if type.equals("seller_profits"):
+            output = "<b>Seller profits:</b>\n"
+            for i in range(len(self.seller_history)):
+                for j in range(len(self.seller_history[0])):
+                    output += "Seller {} Profit:\nRound {}: <i>{}</i>\n".format(i, j, np.around(
+                        self.seller_history[i][j], 2))
+
 
         return output
 
