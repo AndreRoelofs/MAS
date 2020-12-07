@@ -50,9 +50,9 @@ output_button = None
 auction = None
 
 # parameters
-n_sellers = 2
-n_buyers = 2
-n_rounds = 2
+n_sellers = 4
+n_buyers = 4
+n_rounds = 100
 current_auction_type = auction_pure
 current_pricing_type = price_type_random
 current_bidding_strategy = bidding_advanced

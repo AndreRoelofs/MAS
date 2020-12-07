@@ -488,7 +488,7 @@ class Item:
 
     def get_winner_id_and_payout(self):
         current_market_price = self.get_market_price()
-        eligible_buyers = self.current_bids[self.current_bids[:, 1] < current_market_price]
+        eligible_buyers = self.current_bids[self.current_bids[:, 1] <= current_market_price]
         eligible_buyers = eligible_buyers[eligible_buyers[:, 1].argsort()[::-1]]
 
         if len(eligible_buyers) == 0:
