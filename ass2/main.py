@@ -47,6 +47,7 @@ max_starting_price_input = None
 
 execute_button = None
 output_button = None
+auction = None
 
 # parameters
 n_sellers = 2
@@ -237,6 +238,7 @@ def create_runtime_buttons():
 
 
 def execute_auction():
+    global auction
     auction = Auction(current_auction_type,
                       current_pricing_type,
                       current_bidding_strategy,
@@ -259,6 +261,14 @@ def execute_auction():
     output_console.rebuild()
     output_console.full_redraw()
 
+def execute_output():
+    global auction
+    if auction is not None:
+        auction_string = auction.specific_str(current_output)
+        output_console.html_text = '<font face=Montserrat size=5 color=#000000>{}</font>'.format(
+            auction_string.replace('\n', '<br><br>'))
+        output_console.rebuild()
+        output_console.full_redraw()
 
 def create_image(history, nr, ns):
     df = pd.DataFrame(history)
@@ -376,7 +386,7 @@ if __name__ == "__main__":
     image_display = gui.create_image_display(pygame, ui_manager,
                                              image_path="data/images/graph_output/graph_56.png",
                                              size=(int(left_offset * 9.3), int(top_offset * 5.0)),
-                                             position=(int(left_offset * 12.0), int(top_offset * 17.5)))
+                                             position=(int(left_offset * 21.5), int(top_offset * 17.5)))
 
     running = True
 
@@ -403,6 +413,8 @@ if __name__ == "__main__":
                         max_starting_price = int(max_starting_price_input.get_text())
 
                         execute_auction()
+                    if event.ui_element == output_button:
+                        execute_output()
                     if event.ui_element == randomize_n_buyers_button:
                         set_n_random("buyers", upper=20)
                     if event.ui_element == randomize_n_sellers_button:
