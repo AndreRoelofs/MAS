@@ -50,8 +50,8 @@ output_button = None
 auction = None
 
 # parameters
-n_sellers = 4
-n_buyers = 4
+n_sellers = 5
+n_buyers = 10
 n_rounds = 100
 current_auction_type = auction_pure
 current_pricing_type = price_type_random
@@ -133,7 +133,7 @@ def create_starting_conditions_ui():
                                             position=(int(left_offset * 5.5), int(top_offset * 2.5)))
     number_sellers_input.set_allowed_characters('numbers')
     number_sellers_input.set_text_length_limit(2)
-    number_sellers_input.set_text(str(n_buyers))
+    number_sellers_input.set_text(str(n_sellers))
     randomize_n_sellers_button = gui.create_button(pygame, ui_manager,
                                                    text='Randomize',
                                                    size=(int(left_offset * 6.0), int(top_offset * 1.0)),
@@ -294,7 +294,8 @@ def create_image(history, nr, ns):
         df.columns = ["Round " + str(i) for i in range(nr)]
         df = df.transpose()
         df.columns = ["Seller " + str(i) for i in range(ns)]
-        if(df.iloc[:,1].min() < 0.0):
+        # TODO: albert what is this
+        if(df.iloc[:,0].min() < 0.0):
             return
         # print(df.describe())  # seller statistics
         # print(df[:])

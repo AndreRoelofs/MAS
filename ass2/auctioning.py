@@ -99,9 +99,12 @@ class Auction:
 
         self.starting_prices = np.zeros(number_sellers)
         self.market_history = np.zeros((number_sellers, number_rounds))
+        self.previous_starting_price = np.zeros(number_sellers)
+        self.common_profit_factor = np.zeros(number_sellers)
         self.buyer_history = np.zeros((number_buyers, number_rounds))
         self.seller_history = np.zeros((number_sellers, number_rounds))
         self.market_price_analytics = ""
+
 
     def initialize_sellers(self):
         self.sellers = []
@@ -132,7 +135,7 @@ class Auction:
         item_tracker = 0
         # add items to the round
         for seller in self.sellers:
-            current_round.available_items.append(seller.get_random_item())
+            current_round.available_items.append(seller.get_random_item(self.previous_starting_price[seller.id], self.common_profit_factor[seller.id], self.max_starting_price))
 
         # reset buyer current profits
         for buyer in self.buyers:
@@ -149,6 +152,9 @@ class Auction:
             # compute market price of the item & add to the history for statistical purposes
             item.calculate_market_price()
             self.market_history[item.seller.id][current_round.id] = item.get_market_price()
+
+            self.previous_starting_price[item.seller.id] = item.starting_price
+            self.common_profit_factor[item.seller.id] = (item.market_price[0] - item.starting_price)/item.starting_price
 
             # determine the winner
             winner_id, winner_payout = item.get_winner_id_and_payout()
@@ -403,8 +409,24 @@ class Seller:
                 item.set_starting_price(random.randint(0, max_starting_price))
             self.items_stock.append(item)
 
-    def get_random_item(self):
-        return random.choice(self.items_stock)
+    def get_random_item(self, previous_start_price, common_profit_factor, max_starting_price):
+        # create new item
+        # calculate price based on strategy
+        item = random.choice(self.items_stock)
+
+        if True:
+            return item
+
+        if previous_start_price == 0:
+            return item
+
+        start_price = previous_start_price
+
+        if common_profit_factor < 1:
+            start_price *= common_profit_factor
+
+        item.starting_price = min(start_price, max_starting_price)
+        return item
 
     def remove_item_from_stock(self, item):
         self.items_stock.pop(self.items_stock.index(item))
