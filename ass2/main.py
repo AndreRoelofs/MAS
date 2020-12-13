@@ -294,9 +294,6 @@ def create_image(history, nr, ns):
         df.columns = ["Round " + str(i) for i in range(nr)]
         df = df.transpose()
         df.columns = ["Seller " + str(i) for i in range(ns)]
-        # TODO: albert what is this - was to prevent "negative" profits, which should be mathematically impossible given the mechanisms of the auction
-        if(df.iloc[:,:].min().min() < 0.0):
-            return
         # print(df.describe())  # seller statistics
         # print(df[:])
         ax = df.plot(kind="line", title="Individual seller profits")
@@ -308,8 +305,6 @@ def create_image(history, nr, ns):
         df.columns = ["Round " + str(i) for i in range(nr)]
         df = df.transpose()
         df.columns = ["Buyer " + str(i) for i in range(auction.n_buyers)]
-        if(df.iloc[:,:].min().min() < 0.0):
-            return
         # print(df.describe())  # seller statistics
         # print(df[:])
         ax = df.plot(kind="line", title="Individual buyer profits")
