@@ -197,7 +197,7 @@ class Auction:
                     worst_buy = winner.get_least_profitable_buy()
                     fee = self.penalty_factor * worst_buy['winner_payout']
 
-                    if fee < item.get_market_price() - winner_payout:
+                    if fee < worst_buy['profit']:
                         item.seller.profit += fee
                         item.seller.profit -= worst_buy['winner_payout'] - worst_buy['item'].starting_price
                         winner.profit -= fee
