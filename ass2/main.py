@@ -295,7 +295,7 @@ def create_image(history, nr, ns):
         df = df.transpose()
         df.columns = ["Seller " + str(i) for i in range(ns)]
         # TODO: albert what is this - was to prevent "negative" profits, which should be mathematically impossible given the mechanisms of the auction
-        if(df.iloc[:,:].min() < 0.0):
+        if(df.iloc[:,:].min().min() < 0.0):
             return
         # print(df.describe())  # seller statistics
         # print(df[:])
@@ -441,11 +441,10 @@ if __name__ == "__main__":
                         n_sellers = int(number_sellers_input.get_text())
                         n_buyers = int(number_buyers_input.get_text())
                         n_rounds = int(number_rounds_input.get_text())
-
-                        bid_increase_factor = float(bid_increase_factor_input.get_text() if type(bid_increase_factor_input.get_text()) != str else 1.2)
-                        bid_decrease_factor = float(bid_decrease_factor_input.get_text() if type(bid_decrease_factor_input.get_text()) != str else 0.9)
-                        refund_penalty_factor = float(refund_penalty_factor_input.get_text() if type(refund_penalty_factor_input.get_text()) != str else 0.1)
-                        max_starting_price = int(max_starting_price_input.get_text() if type(max_starting_price_input.get_text()) != str else 1000.0)
+                        bid_increase_factor = float(bid_increase_factor_input.get_text() if type(bid_increase_factor_input.get_text()) != str or type(bid_increase_factor_input.get_text()) != float else 1.2)
+                        bid_decrease_factor = float(bid_decrease_factor_input.get_text() if type(bid_decrease_factor_input.get_text()) != str or type(bid_decrease_factor_input.get_text()) != float else 0.9)
+                        refund_penalty_factor = float(refund_penalty_factor_input.get_text() if type(refund_penalty_factor_input.get_text()) != str or type(refund_penalty_factor_input.get_text()) != float else 0.1)
+                        max_starting_price = int(max_starting_price_input.get_text() if type(max_starting_price_input.get_text()) != str or type(max_starting_price_input.get_text()) != int else 1000.0)
 
                         execute_auction()
                     if event.ui_element == output_button:
