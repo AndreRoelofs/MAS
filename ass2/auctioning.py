@@ -185,23 +185,32 @@ class Auction:
                 winner = self.buyers[winner_id]
 
                 # calculate seller profit
-                item.seller.profit += winner_payout - item.starting_price
-                if winner_payout - item.starting_price < 0:
-                    test = 0
+                seller_profit = winner_payout - item.starting_price
+                item.seller.profit += seller_profit
 
                 # calculate buyer profit
-                winner.increase_profit(item, winner_payout)
+                buyer_profit = winner.increase_profit(item, winner_payout)
 
                 # decide which one to decommit
                 if self.auction_type == auction_leveled and winner in winners:
                     worst_buy = winner.get_least_profitable_buy()
                     fee = self.penalty_factor * worst_buy['winner_payout']
 
-                    if fee < worst_buy['profit']:
-                        item.seller.profit += fee
-                        item.seller.profit -= worst_buy['winner_payout'] - worst_buy['item'].starting_price
+                    if buyer_profit - fee > worst_buy['profit']:
+                        worst_buy['item'].seller.profit += fee
+                        worst_buy['item'].seller.profit -= worst_buy['winner_payout'] - worst_buy['starting_price']
+
                         winner.profit -= fee
                         winner.profit -= worst_buy['profit']
+                        winner.remove_worst_buy()
+                    else:
+                        fee = self.penalty_factor * winner_payout
+                        item.seller.profit += fee
+                        item.seller.profit -= seller_profit
+
+                        winner.profit -= fee
+                        winner.profit -= buyer_profit
+
                 winners.append(winner)
 
                 if self.auction_type == auction_pure:
@@ -509,12 +518,20 @@ class Buyer:
             'item': item,
             'market_price': item.get_market_price(),
             'winner_payout': winner_payout,
-            'profit': profit
+            'profit': profit,
+            'starting_price': item.starting_price
         })
         self.profit += profit
+        return profit
 
     def get_least_profitable_buy(self):
-        return sorted(self.current_profits, key=lambda x: x['profit'])[0]
+        worst_buy = sorted(self.current_profits, key=lambda x: x['profit'])[0]
+        return worst_buy
+
+    def remove_worst_buy(self):
+        worst_buy = sorted(self.current_profits, key=lambda x: x['profit'])[0]
+        self.current_profits.remove(worst_buy)
+
 
     def change_bidding_by_factor(self, seller, factor):
         self.bidding_factors[seller.id] = max(self.bidding_factors[seller.id] * factor, 1)
