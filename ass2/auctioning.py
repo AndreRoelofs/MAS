@@ -84,6 +84,8 @@ class Auction:
         self.n_sellers = number_sellers
         self.n_buyers = number_buyers
         self.n_rounds = number_rounds
+        self.overbidders = 0
+        self.underbidders = 0
 
         self.auction_type = auction_type
         self.start_price_type = start_price_type
@@ -139,7 +141,7 @@ class Auction:
         item_tracker = 0
         # add items to the round
         for seller in self.sellers:
-            current_round.available_items.append(seller.get_random_item(self.previous_starting_price[seller.id], self.common_profit_factor[seller.id], self.max_starting_price, self.start_price_type, self.price_decrease_factor, self.price_increase_factor))
+            current_round.available_items.append(seller.get_random_item(self.previous_starting_price[seller.id], self.common_profit_factor[seller.id], self.max_starting_price, self.start_price_type, self.price_decrease_factor, self.price_increase_factor, self.overbidders, self.underbidders, current_round.id))
 
         # reset buyer current profits
         for buyer in self.buyers:
@@ -235,6 +237,8 @@ class Auction:
         seller = item.seller
         overbidders_ids = item.get_overbidders_ids()
         underbidders_ids = item.get_underbidders_ids()
+        self.overbidders = len(overbidders_ids)
+        self.underbidders = len(underbidders_ids)
 
         for id in overbidders_ids:
             buyer = self.buyers[int(id)]
@@ -407,11 +411,10 @@ class Seller:
     def initialize_items(self, n_items, start_price_type, max_starting_price):
         for i in range(n_items):
             item = Item(seller=self)
-            if start_price_type == price_type_random:
-                item.set_starting_price(random.randint(0, max_starting_price))
+            item.set_starting_price(random.randint(0, max_starting_price))
             self.items_stock.append(item)
 
-    def get_random_item(self, previous_start_price, common_profit_factor, max_starting_price, seller_strategy, price_decrease, price_increase):
+    def get_random_item(self, previous_start_price, common_profit_factor, max_starting_price, seller_strategy, price_decrease, price_increase, overbidders, underbidders, round):
         # create new item
         # calculate price based on strategy
         item = random.choice(self.items_stock)
@@ -427,6 +430,7 @@ class Seller:
         if common_profit_factor < 1:
             start_price *= common_profit_factor
 
+        print(seller_strategy)
         item.starting_price = min(start_price, max_starting_price)
         return item
 
@@ -434,7 +438,6 @@ class Seller:
         self.items_stock.pop(self.items_stock.index(item))
         self.items_sold.append(item)
 
-    # TODO Seller can adjust price in an auction - add as a gui option?
 
 
 class Buyer:
