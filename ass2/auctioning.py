@@ -432,7 +432,10 @@ class Seller:
         if common_profit_factor < 1:
             start_price *= common_profit_factor
 
-        print(seller_strategy)
+        if seller_strategy == price_type_own_good:
+            start_price *= price_increase if overbidders > underbidders else 1
+        if seller_strategy == price_type_common_good:
+            start_price *= price_increase if overbidders > underbidders else price_decrease if overbidders < underbidders else 1
         item.starting_price = min(start_price, max_starting_price)
         return item
 
