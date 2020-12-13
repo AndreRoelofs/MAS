@@ -78,6 +78,8 @@ class Auction:
                  penalty_factor=0.1,
                  bid_increase_factor=1.2,
                  bid_decrease_factor=0.9,
+                 price_increase_factor=1.2,
+                 price_decrease_factor=0.9,
                  max_starting_price=100, ):
         self.n_sellers = number_sellers
         self.n_buyers = number_buyers
@@ -92,6 +94,8 @@ class Auction:
         self.penalty_factor = penalty_factor
         self.bid_increase_factor = bid_increase_factor
         self.bid_decrease_factor = bid_decrease_factor
+        self.price_increase_factor = price_increase_factor
+        self.price_decrease_factor = price_decrease_factor
 
         self.initialize_sellers()
         self.initialize_buyers()
@@ -135,7 +139,7 @@ class Auction:
         item_tracker = 0
         # add items to the round
         for seller in self.sellers:
-            current_round.available_items.append(seller.get_random_item(self.previous_starting_price[seller.id], self.common_profit_factor[seller.id], self.max_starting_price))
+            current_round.available_items.append(seller.get_random_item(self.previous_starting_price[seller.id], self.common_profit_factor[seller.id], self.max_starting_price, self.start_price_type, self.price_decrease_factor, self.price_increase_factor))
 
         # reset buyer current profits
         for buyer in self.buyers:
@@ -174,8 +178,7 @@ class Auction:
                     fee = self.penalty_factor * worst_buy['winner_payout']
 
                     item.seller.profit += fee
-                    # TODO should the seller also return the paid amount when a winner backs out?
-                    # TODO Yes. The seller does not win anything yet officially.
+                    item.seller.profit -= winner_payout - item.starting_price
                     winner.profit -= fee
                 winners.append(winner)
 
@@ -203,7 +206,6 @@ class Auction:
 
         print("")
 
-        # print("TODO: Item market price development across rounds")
         if current_round.id > 0:
             for seller in self.sellers:
                 first_market_price = self.market_history[seller.id][0]
@@ -409,7 +411,7 @@ class Seller:
                 item.set_starting_price(random.randint(0, max_starting_price))
             self.items_stock.append(item)
 
-    def get_random_item(self, previous_start_price, common_profit_factor, max_starting_price):
+    def get_random_item(self, previous_start_price, common_profit_factor, max_starting_price, seller_strategy, price_decrease, price_increase):
         # create new item
         # calculate price based on strategy
         item = random.choice(self.items_stock)

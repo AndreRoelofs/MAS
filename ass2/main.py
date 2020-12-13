@@ -41,6 +41,8 @@ output_dropdown = None
 
 bid_increase_factor_input = None
 bid_decrease_factor_input = None
+price_increase_factor_input = None
+price_decrease_factor_input = None
 refund_penalty_factor_input = None
 refund_penalty_factor_label = None
 max_starting_price_input = None
@@ -64,6 +66,8 @@ current_bidding_strategy = bidding_advanced
 current_output = output_all
 bid_increase_factor = 1.2
 bid_decrease_factor = 0.9
+price_increase_factor = 1.2
+price_decrease_factor = 0.9
 refund_penalty_factor = 0.1
 max_starting_price = 1000
 
@@ -252,6 +256,8 @@ def execute_auction():
                       number_rounds=n_rounds,
                       bid_increase_factor=bid_increase_factor,
                       bid_decrease_factor=bid_decrease_factor,
+                      price_increase_factor=price_increase_factor,
+                      price_decrease_factor=price_decrease_factor,
                       penalty_factor=refund_penalty_factor,
                       max_starting_price=max_starting_price,
                       )
@@ -355,6 +361,8 @@ def set_n_random(id, upper):
 def create_parameters_ui():
     global bid_increase_factor_input
     global bid_decrease_factor_input
+    global price_increase_factor_input
+    global price_decrease_factor_input
     global refund_penalty_factor_input
     global max_starting_price_input
     global refund_penalty_factor_label
@@ -384,27 +392,49 @@ def create_parameters_ui():
     bid_decrease_factor_input.set_text_length_limit(5)
     bid_decrease_factor_input.set_text(str(bid_decrease_factor))
 
-    # refund penalty factor
+    # price increase
     gui.create_label(pygame, ui_manager, position=(int(left_offset * 15.5), int(top_offset * 5.2)),
+                     text='Price Increase Factor',
+                     size=(int(left_offset * 4.0), int(top_offset * 1.0)))
+
+    price_increase_factor_input = gui.create_input(pygame, ui_manager,
+                                                 size=(int(left_offset * 3.0), int(top_offset * 0.6)),
+                                                 position=(int(left_offset * 20.5), int(top_offset * 5.5)))
+    price_increase_factor_input.set_text_length_limit(5)
+    price_increase_factor_input.set_text(str(price_increase_factor))
+
+    # price decrease
+    gui.create_label(pygame, ui_manager, position=(int(left_offset * 15.5), int(top_offset * 6.7)),
+                     text='Price Decrease Factor',
+                     size=(int(left_offset * 4.0), int(top_offset * 1.0)))
+
+    price_decrease_factor_input = gui.create_input(pygame, ui_manager,
+                                                 size=(int(left_offset * 3.0), int(top_offset * 0.6)),
+                                                 position=(int(left_offset * 20.5), int(top_offset * 7.0)))
+    price_decrease_factor_input.set_text_length_limit(5)
+    price_decrease_factor_input.set_text(str(price_decrease_factor))
+
+    # refund penalty factor
+    gui.create_label(pygame, ui_manager, position=(int(left_offset * 15.5), int(top_offset * 8.2)),
                      text='Max Starting Price',
                      size=(int(left_offset * 4.0), int(top_offset * 1.0)))
 
     max_starting_price_input = gui.create_input(pygame, ui_manager,
                                                 size=(int(left_offset * 3.0), int(top_offset * 0.6)),
-                                                position=(int(left_offset * 20.5), int(top_offset * 5.5)))
+                                                position=(int(left_offset * 20.5), int(top_offset * 8.5)))
     max_starting_price_input.set_text_length_limit(5)
     max_starting_price_input.set_allowed_characters('numbers')
     max_starting_price_input.set_text(str(max_starting_price))
 
     # max starting price
     refund_penalty_factor_label = gui.create_label(pygame, ui_manager,
-                                                   position=(int(left_offset * 15.5), int(top_offset * 6.7)),
+                                                   position=(int(left_offset * 15.5), int(top_offset * 9.7)),
                                                    text='Refund Penalty Factor',
                                                    size=(int(left_offset * 4.0), int(top_offset * 1.0)))
 
     refund_penalty_factor_input = gui.create_input(pygame, ui_manager,
                                                    size=(int(left_offset * 3.0), int(top_offset * 0.6)),
-                                                   position=(int(left_offset * 20.5), int(top_offset * 7.0)))
+                                                   position=(int(left_offset * 20.5), int(top_offset * 10.0)))
     refund_penalty_factor_input.set_text_length_limit(5)
     refund_penalty_factor_input.set_text(str(refund_penalty_factor))
 
@@ -452,6 +482,8 @@ if __name__ == "__main__":
                         n_rounds = int(number_rounds_input.get_text())
                         bid_increase_factor = float(bid_increase_factor_input.get_text() if type(bid_increase_factor_input.get_text()) != str or type(bid_increase_factor_input.get_text()) != float else 1.2)
                         bid_decrease_factor = float(bid_decrease_factor_input.get_text() if type(bid_decrease_factor_input.get_text()) != str or type(bid_decrease_factor_input.get_text()) != float else 0.9)
+                        price_increase_factor = float(price_increase_factor_input.get_text() if type(price_increase_factor_input.get_text()) != str or type(price_increase_factor_input.get_text()) != float else 1.2)
+                        price_decrease_factor = float(price_decrease_factor_input.get_text() if type(price_decrease_factor_input.get_text()) != str or type(price_decrease_factor_input.get_text()) != float else 0.9)
                         refund_penalty_factor = float(refund_penalty_factor_input.get_text() if type(refund_penalty_factor_input.get_text()) != str or type(refund_penalty_factor_input.get_text()) != float else 0.1)
                         max_starting_price = int(max_starting_price_input.get_text() if type(max_starting_price_input.get_text()) != str or type(max_starting_price_input.get_text()) != int else 1000.0)
 
