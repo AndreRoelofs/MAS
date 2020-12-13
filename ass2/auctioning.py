@@ -172,6 +172,8 @@ class Auction:
 
                 # calculate seller profit
                 item.seller.profit += winner_payout - item.starting_price
+                if winner_payout - item.starting_price < 0:
+                    test = 0
 
                 # calculate buyer profit
                 winner.increase_profit(item, winner_payout)
@@ -489,7 +491,7 @@ class Buyer:
         return sorted(self.current_profits, key=lambda x: x['profit'])[0]
 
     def change_bidding_by_factor(self, seller, factor):
-        self.bidding_factors[seller.id] *= factor
+        self.bidding_factors[seller.id] = max(self.bidding_factors[seller.id] * factor, 1)
 
 
 class Item:
