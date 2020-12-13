@@ -152,6 +152,8 @@ class Auction:
             if current_round.id == 0:
                 self.starting_prices[item_tracker] = item.starting_price
                 item_tracker += 1
+            if len(current_round.available_buyers) == 0:
+                continue
             item.reset_current_bids()
             for buyer in current_round.available_buyers:
                 item.add_bid(buyer)
