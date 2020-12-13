@@ -49,6 +49,11 @@ execute_button = None
 output_button = None
 auction = None
 
+df_all = None
+df_buyers = None
+df_sellers = None
+
+
 # parameters
 n_sellers = 5
 n_buyers = 10
@@ -238,7 +243,7 @@ def create_runtime_buttons():
 
 
 def execute_auction():
-    global auction
+    global auction, df_all, df_buyers, df_sellers
     auction = Auction(current_auction_type,
                       current_pricing_type,
                       current_bidding_strategy,
@@ -250,7 +255,9 @@ def execute_auction():
                       penalty_factor=refund_penalty_factor,
                       max_starting_price=max_starting_price,
                       )
-
+    df_all = None
+    df_buyers = None
+    df_sellers = None
     for _ in range(n_rounds):
         auction.execute_next_round()
     history = auction.get_market_history()
@@ -271,45 +278,52 @@ def execute_output():
         output_console.rebuild()
         output_console.full_redraw()
 
+
 def create_image(history, nr, ns):
-    global auction
+    global auction, df_all, df_buyers, df_sellers
     ax = None
     selection = 0
     if history is None:
         history=auction.market_history
     if(current_output==output_market_prices or current_output==output_all):
         selection = "_market"
-        df = pd.DataFrame(history)
-        df.columns = ["Round " + str(i) for i in range(nr)]
-        df = df.transpose()
-        df.columns = ["Item " + str(i) for i in range(ns)]
-        # print(df.describe())  # seller statistics
-        # print(df[:])
-        ax = df.plot(kind="area", title="Market price development")
-        ax.set_xlabel("Round number")
-        ax.set_ylabel("Total market value (all items)")
+
+        if(df_all is None):
+            df_all = pd.DataFrame(history)
+            df_all.columns = ["Round " + str(i) for i in range(nr)]
+            df_all = df_all.transpose()
+            df_all.columns = ["Item " + str(i) for i in range(ns)]
+            # print(df.describe())  # seller statistics
+            # print(df[:])
+        ax_all = df_all.plot(kind="area", title="Market price development")
+        ax_all.set_xlabel("Round number")
+        ax_all.set_ylabel("Total market value (all items)")
     if(current_output==output_seller_profits or current_output==output_seller_statistics):
         selection = "_sellers"
-        df = pd.DataFrame(auction.seller_history)
-        df.columns = ["Round " + str(i) for i in range(nr)]
-        df = df.transpose()
-        df.columns = ["Seller " + str(i) for i in range(ns)]
-        # print(df.describe())  # seller statistics
-        # print(df[:])
-        ax = df.plot(kind="line", title="Individual seller profits")
-        ax.set_xlabel("Round number")
-        ax.set_ylabel("Seller Profit")
+
+        if(df_sellers is None):
+            df_sellers = pd.DataFrame(auction.seller_history)
+            df_sellers.columns = ["Round " + str(i) for i in range(nr)]
+            df_sellers = df_sellers.transpose()
+            df_sellers.columns = ["Seller " + str(i) for i in range(ns)]
+            # print(df.describe())  # seller statistics
+            # print(df[:])
+        ax_sellers = df_sellers.plot(kind="line", title="Individual seller profits")
+        ax_sellers.set_xlabel("Round number")
+        ax_sellers.set_ylabel("Seller Profit")
     if(current_output==output_buyer_profits or current_output==output_buyer_statistics):
         selection = "_buyers"
-        df = pd.DataFrame(auction.buyer_history)
-        df.columns = ["Round " + str(i) for i in range(nr)]
-        df = df.transpose()
-        df.columns = ["Buyer " + str(i) for i in range(auction.n_buyers)]
-        # print(df.describe())  # seller statistics
-        # print(df[:])
-        ax = df.plot(kind="line", title="Individual buyer profits")
-        ax.set_xlabel("Round number")
-        ax.set_ylabel("Buyer Profit")
+
+        if(df_buyers is None):
+            df_buyers = pd.DataFrame(auction.buyer_history)
+            df_buyers.columns = ["Round " + str(i) for i in range(nr)]
+            df_buyers = df_buyers.transpose()
+            df_buyers.columns = ["Buyer " + str(i) for i in range(auction.n_buyers)]
+            # print(df.describe())  # seller statistics
+            # print(df[:])
+        ax_buyers = df_buyers.plot(kind="line", title="Individual buyer profits")
+        ax_buyers.set_xlabel("Round number")
+        ax_buyers.set_ylabel("Buyer Profit")
     image_path = "data/images/graph_output/graph{}.png".format(selection)
     plt.savefig(image_path)
 
