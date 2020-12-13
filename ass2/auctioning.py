@@ -201,14 +201,20 @@ class Auction:
         for seller in self.sellers:
             print("Seller: {} earned a profit of {} after round {}"
                   .format(seller.id, np.around(seller.profit, 2), self.current_round_number))
-            self.seller_history[seller.id][current_round.id] = seller.profit
+            if current_round.id == 0:
+                self.seller_history[seller.id][current_round.id] = seller.profit
+            else:
+                self.seller_history[seller.id][current_round.id] = seller.profit - self.seller_history[seller.id][current_round.id-1]
 
         print("")
 
         for buyer in self.buyers:
             print("Buyer: {} earned a profit of {} after round {}"
                   .format(buyer.id, np.around(buyer.profit, 2), self.current_round_number))
-            self.buyer_history[buyer.id][current_round.id] = buyer.profit
+            if current_round.id == 0:
+                self.buyer_history[buyer.id][current_round.id] = buyer.profit
+            else:
+                self.buyer_history[buyer.id][current_round.id] = buyer.profit - self.buyer_history[buyer.id][current_round.id-1]
 
         print("")
 
