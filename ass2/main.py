@@ -282,12 +282,12 @@ def create_image(history, nr, ns):
         df = pd.DataFrame(history)
         df.columns = ["Round " + str(i) for i in range(nr)]
         df = df.transpose()
-        df.columns = ["Seller " + str(i) for i in range(ns)]
+        df.columns = ["Item " + str(i) for i in range(ns)]
         # print(df.describe())  # seller statistics
         # print(df[:])
-        ax = df.plot(kind="area", title="Stacked seller profits per round")
+        ax = df.plot(kind="area", title="Market price development")
         ax.set_xlabel("Round number")
-        ax.set_ylabel("Seller Profits")
+        ax.set_ylabel("Total market value (all items)")
     if(current_output==output_seller_profits or current_output==output_seller_statistics):
         selection = "_sellers"
         df = pd.DataFrame(auction.seller_history)
