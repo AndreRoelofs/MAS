@@ -204,7 +204,7 @@ class Auction:
             if current_round.id == 0:
                 self.seller_history[seller.id][current_round.id] = seller.profit
             else:
-                self.seller_history[seller.id][current_round.id] = seller.profit - self.seller_history[seller.id][current_round.id-1]
+                self.seller_history[seller.id][current_round.id] = seller.profit - np.sum(self.seller_history[seller.id][:-1])
 
         print("")
 
@@ -214,7 +214,7 @@ class Auction:
             if current_round.id == 0:
                 self.buyer_history[buyer.id][current_round.id] = buyer.profit
             else:
-                self.buyer_history[buyer.id][current_round.id] = buyer.profit - self.buyer_history[buyer.id][current_round.id-1]
+                self.buyer_history[buyer.id][current_round.id] = buyer.profit - np.sum(self.buyer_history[buyer.id][:-1])
 
         print("")
 
