@@ -301,7 +301,7 @@ def create_image(history, nr, ns):
         # print(df[:])
         ax = df.plot(kind="line", title="Individual seller profits")
         ax.set_xlabel("Round number")
-        ax.set_ylabel("Cumulative Seller Profits")
+        ax.set_ylabel("Seller Profit")
     if(current_output==output_buyer_profits or current_output==output_buyer_statistics):
         selection = "_buyers"
         df = pd.DataFrame(auction.buyer_history)
@@ -314,7 +314,7 @@ def create_image(history, nr, ns):
         # print(df[:])
         ax = df.plot(kind="line", title="Individual buyer profits")
         ax.set_xlabel("Round number")
-        ax.set_ylabel("Cumulative Buyer Profits")
+        ax.set_ylabel("Buyer Profit")
     image_path = "data/images/graph_output/graph{}.png".format(selection)
     plt.savefig(image_path)
 
