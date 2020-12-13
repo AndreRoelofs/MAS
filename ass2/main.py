@@ -294,12 +294,12 @@ def create_image(history, nr, ns):
         df.columns = ["Round " + str(i) for i in range(nr)]
         df = df.transpose()
         df.columns = ["Seller " + str(i) for i in range(ns)]
-        # TODO: albert what is this
-        if(df.iloc[:,0].min() < 0.0):
+        # TODO: albert what is this - was to prevent "negative" profits, which should be mathematically impossible given the mechanisms of the auction
+        if(df.iloc[:,1].min() < 0.0):
             return
         # print(df.describe())  # seller statistics
         # print(df[:])
-        ax = df.plot(kind="line", title="Stacked cumulative seller profits over rounds")
+        ax = df.plot(kind="line", title="Individual seller profits")
         ax.set_xlabel("Round number")
         ax.set_ylabel("Cumulative Seller Profits")
     if(current_output==output_buyer_profits or current_output==output_buyer_statistics):
@@ -312,7 +312,7 @@ def create_image(history, nr, ns):
             return
         # print(df.describe())  # seller statistics
         # print(df[:])
-        ax = df.plot(kind="line", title="Stacked cumulative buyer profits over rounds")
+        ax = df.plot(kind="line", title="Individual buyer profits")
         ax.set_xlabel("Round number")
         ax.set_ylabel("Cumulative Buyer Profits")
     image_path = "data/images/graph_output/graph{}.png".format(selection)
