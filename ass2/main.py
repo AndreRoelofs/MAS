@@ -57,8 +57,8 @@ df_sellers = None
 
 
 # parameters
-n_sellers = 5
-n_buyers = 10
+n_sellers = 10
+n_buyers = 4
 n_rounds = 100
 current_auction_type = auction_pure
 current_pricing_type = price_type_random
