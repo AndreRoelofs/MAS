@@ -201,6 +201,7 @@ class Auction:
                         item.seller.profit += fee
                         item.seller.profit -= worst_buy['winner_payout'] - worst_buy['item'].starting_price
                         winner.profit -= fee
+                        winner.profit -= worst_buy['profit']
                 winners.append(winner)
 
                 if self.auction_type == auction_pure:
