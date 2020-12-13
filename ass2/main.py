@@ -37,6 +37,7 @@ randomize_n_rounds_button = None
 auctioning_type_dropdown = None
 start_price_type_dropdown = None
 bidding_strategy_dropdown = None
+bidding_factor_dropdown = None
 output_dropdown = None
 
 bid_increase_factor_input = None
@@ -45,6 +46,7 @@ price_increase_factor_input = None
 price_decrease_factor_input = None
 refund_penalty_factor_input = None
 refund_penalty_factor_label = None
+bidding_factor_value_input = None
 max_starting_price_input = None
 
 execute_button = None
@@ -63,12 +65,14 @@ n_rounds = 100
 current_auction_type = auction_pure
 current_pricing_type = price_type_random
 current_bidding_strategy = bidding_advanced
+current_bidding_factor = bidding_factor_random
 current_output = output_all
 bid_increase_factor = 1.2
 bid_decrease_factor = 0.9
 price_increase_factor = 1.2
 price_decrease_factor = 0.9
 refund_penalty_factor = 0.1
+bidding_factor_value = 5.0
 max_starting_price = 1000
 
 
@@ -181,10 +185,12 @@ def create_auction_settings_ui():
     global auctioning_type_dropdown
     global start_price_type_dropdown
     global bidding_strategy_dropdown
+    global bidding_factor_dropdown
     global output_dropdown
     global current_pricing_type
     global current_auction_type
     global current_bidding_strategy
+    global current_bidding_factor
     global current_output
 
     gui.create_label(pygame, ui_manager,
@@ -194,7 +200,7 @@ def create_auction_settings_ui():
 
     # auctioning type
     gui.create_label(pygame, ui_manager, position=(int(left_offset * 1.0), int(top_offset * 8.5)),
-                     text='Auctioning type:',
+                     text='Auctioning type',
                      size=(int(left_offset * 4.0), int(top_offset * 1.0)))
     auctioning_type_dropdown = gui.create_dropdown_button(pygame, ui_manager,
                                                           opt_list=auctioning_types,
@@ -204,7 +210,7 @@ def create_auction_settings_ui():
 
     # pricing type
     gui.create_label(pygame, ui_manager, position=(int(left_offset * 1.0), int(top_offset * 10.0)),
-                     text='Start price type:',
+                     text='Start price type',
                      size=(int(left_offset * 4.0), int(top_offset * 1.0)))
     start_price_type_dropdown = gui.create_dropdown_button(pygame, ui_manager,
                                                            opt_list=start_price_types,
@@ -212,25 +218,35 @@ def create_auction_settings_ui():
                                                            size=(int(left_offset * 9.0), int(top_offset * 1.0)))
     current_pricing_type = start_price_type_dropdown.selected_option
 
-    # bidding strategy
+    # bidding factor initialization type
     gui.create_label(pygame, ui_manager, position=(int(left_offset * 1.0), int(top_offset * 11.5)),
+                     text='Bidding factor selection',
+                     size=(int(left_offset * 4.0), int(top_offset * 1.0)))
+    bidding_factor_dropdown = gui.create_dropdown_button(pygame, ui_manager,
+                                                           opt_list=bidding_factor_types,
+                                                           position=(int(left_offset * 6.0), int(top_offset * 11.5)),
+                                                           size=(int(left_offset * 9.0), int(top_offset * 1.0)))
+    current_bidding_factor = bidding_factor_dropdown.selected_option
+
+    # bidding strategy
+    gui.create_label(pygame, ui_manager, position=(int(left_offset * 1.0), int(top_offset * 13.0)),
                      text='Bidding strategy',
                      size=(int(left_offset * 4.0), int(top_offset * 1.0)))
 
     bidding_strategy_dropdown = gui.create_dropdown_button(pygame, ui_manager,
                                                            opt_list=bidding_strategy_types,
-                                                           position=(int(left_offset * 6.0), int(top_offset * 11.5)),
+                                                           position=(int(left_offset * 6.0), int(top_offset * 13.0)),
                                                            size=(int(left_offset * 9.0), int(top_offset * 1.0)))
     current_bidding_strategy = bidding_strategy_dropdown.selected_option
 
     # output
-    gui.create_label(pygame, ui_manager, position=(int(left_offset * 1.0), int(top_offset * 13.0)),
+    gui.create_label(pygame, ui_manager, position=(int(left_offset * 1.0), int(top_offset * 14.5)),
                      text='Output',
                      size=(int(left_offset * 4.0), int(top_offset * 1.0)))
 
     output_dropdown = gui.create_dropdown_button(pygame, ui_manager,
                                                            opt_list=output_types,
-                                                           position=(int(left_offset * 6.0), int(top_offset * 13.0)),
+                                                           position=(int(left_offset * 6.0), int(top_offset * 14.5)),
                                                            size=(int(left_offset * 9.0), int(top_offset * 1.0)))
     current_output = output_dropdown.selected_option
 
@@ -239,11 +255,11 @@ def create_runtime_buttons():
     global output_button
     execute_button = gui.create_button(pygame, ui_manager, text='Execute',
                                        size=(int(left_offset * 4.0), int(top_offset * 1.0)),
-                                       position=(int(left_offset * 1.0), int(top_offset * 15)))
+                                       position=(int(left_offset * 1.0), int(top_offset * 16)))
 
     output_button = gui.create_button(pygame, ui_manager, text='Output',
                                        size=(int(left_offset * 4.0), int(top_offset * 1.0)),
-                                       position=(int(left_offset * 11.0), int(top_offset * 15)))
+                                       position=(int(left_offset * 11.0), int(top_offset * 16)))
 
 
 def execute_auction():
@@ -251,6 +267,7 @@ def execute_auction():
     auction = Auction(current_auction_type,
                       current_pricing_type,
                       current_bidding_strategy,
+                      current_bidding_factor,
                       number_buyers=n_buyers,
                       number_sellers=n_sellers,
                       number_rounds=n_rounds,
@@ -259,6 +276,7 @@ def execute_auction():
                       price_increase_factor=price_increase_factor,
                       price_decrease_factor=price_decrease_factor,
                       penalty_factor=refund_penalty_factor,
+                      bidding_factor_value=bidding_factor_value,
                       max_starting_price=max_starting_price,
                       )
     df_all = None
@@ -365,6 +383,7 @@ def create_parameters_ui():
     global price_decrease_factor_input
     global refund_penalty_factor_input
     global max_starting_price_input
+    global bidding_factor_value_input
     global refund_penalty_factor_label
 
     gui.create_label(pygame, ui_manager, position=(left_offset * 15.5, int(top_offset * 0.7)),
@@ -427,16 +446,31 @@ def create_parameters_ui():
     max_starting_price_input.set_text(str(max_starting_price))
 
     # max starting price
-    refund_penalty_factor_label = gui.create_label(pygame, ui_manager,
+    bidding_factor_label = gui.create_label(pygame, ui_manager,
                                                    position=(int(left_offset * 15.5), int(top_offset * 9.7)),
+                                                   text='Bidding Factor',
+                                                   size=(int(left_offset * 4.0), int(top_offset * 1.0)))
+
+    bidding_factor_value_input = gui.create_input(pygame, ui_manager,
+                                                   size=(int(left_offset * 3.0), int(top_offset * 0.6)),
+                                                   position=(int(left_offset * 20.5), int(top_offset * 10.0)))
+    bidding_factor_value_input.set_text_length_limit(5)
+    bidding_factor_value_input.set_text(str(bidding_factor_value))
+
+    # refund penalty value
+    refund_penalty_factor_label = gui.create_label(pygame, ui_manager,
+                                                   position=(int(left_offset * 15.5), int(top_offset * 11.2)),
                                                    text='Refund Penalty Factor',
                                                    size=(int(left_offset * 4.0), int(top_offset * 1.0)))
 
     refund_penalty_factor_input = gui.create_input(pygame, ui_manager,
                                                    size=(int(left_offset * 3.0), int(top_offset * 0.6)),
-                                                   position=(int(left_offset * 20.5), int(top_offset * 10.0)))
+                                                   position=(int(left_offset * 20.5), int(top_offset * 11.5)))
     refund_penalty_factor_input.set_text_length_limit(5)
     refund_penalty_factor_input.set_text(str(refund_penalty_factor))
+
+
+
 
     if auctioning_type_dropdown.selected_option != auction_leveled:
         refund_penalty_factor_label.visible = False
@@ -485,6 +519,7 @@ if __name__ == "__main__":
                         price_increase_factor = float(price_increase_factor_input.get_text() if type(price_increase_factor_input.get_text()) != str or type(price_increase_factor_input.get_text()) != float else 1.2)
                         price_decrease_factor = float(price_decrease_factor_input.get_text() if type(price_decrease_factor_input.get_text()) != str or type(price_decrease_factor_input.get_text()) != float else 0.9)
                         refund_penalty_factor = float(refund_penalty_factor_input.get_text() if type(refund_penalty_factor_input.get_text()) != str or type(refund_penalty_factor_input.get_text()) != float else 0.1)
+                        bidding_factor_value = float(bidding_factor_value_input.get_text() if type(bidding_factor_value_input.get_text()) != str or type(bidding_factor_value_input.get_text()) != float else 5.0)
                         max_starting_price = int(max_starting_price_input.get_text() if type(max_starting_price_input.get_text()) != str or type(max_starting_price_input.get_text()) != int else 1000.0)
 
                         execute_auction()

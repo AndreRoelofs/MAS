@@ -30,6 +30,14 @@ bidding_strategy_types = [
     bidding_advanced,
 ]
 
+bidding_factor_random = "Random"
+bidding_factor_constant = "Constant"
+
+bidding_factor_types = [
+    bidding_factor_random,
+    bidding_factor_constant
+]
+
 output_all = "All"
 output_buyer_statistics = "Buyer Statistics"
 output_seller_statistics = "Seller Statistics"
@@ -72,6 +80,7 @@ class Auction:
                  auction_type,
                  start_price_type,
                  bidding_strategy,
+                 bidding_factor_type,
                  number_sellers=2,
                  number_buyers=3,
                  number_rounds=2,
@@ -80,6 +89,7 @@ class Auction:
                  bid_decrease_factor=0.9,
                  price_increase_factor=1.2,
                  price_decrease_factor=0.9,
+                 bidding_factor_value=5.0,
                  max_starting_price=100, ):
         self.n_sellers = number_sellers
         self.n_buyers = number_buyers
@@ -90,6 +100,7 @@ class Auction:
         self.auction_type = auction_type
         self.start_price_type = start_price_type
         self.bidding_strategy = bidding_strategy
+        self.bidding_factor_type = bidding_factor_type
         self.max_starting_price = max_starting_price
 
         self.current_round_number = 0
@@ -98,6 +109,7 @@ class Auction:
         self.bid_decrease_factor = bid_decrease_factor
         self.price_increase_factor = price_increase_factor
         self.price_decrease_factor = price_decrease_factor
+        self.bidding_factor_value = bidding_factor_value
 
         self.initialize_sellers()
         self.initialize_buyers()
@@ -127,7 +139,9 @@ class Auction:
             self.buyers.append(Buyer(
                 id=i,
                 number_sellers=self.n_sellers,
-                bidding_strategy=self.bidding_strategy
+                bidding_strategy=self.bidding_strategy,
+                sampling=self.bidding_factor_type,
+                value=self.bidding_factor_value
             ))
 
     def initialize_rounds(self):
@@ -460,21 +474,25 @@ class Buyer:
     bidding_factors = None
     bidding_strategy = None
 
-    def __init__(self, id, number_sellers, bidding_strategy):
+    def __init__(self, id, number_sellers, bidding_strategy, sampling, value):
         self.id = id
         self.items_bought = []
         self.current_profits = []
         self.bidding_strategy = bidding_strategy
 
-        self.initialize_bidding_factors(number_sellers)
+        self.initialize_bidding_factors(number_sellers, sampling, value)
 
     def reset_current_profits(self):
         self.current_profits = []
 
-    def initialize_bidding_factors(self, number_sellers):
+    def initialize_bidding_factors(self, number_sellers, sampling, value):
         self.bidding_factors = []
-        for i in range(number_sellers):
-            self.bidding_factors.append(random.uniform(1.0, 5.0))
+        if sampling == bidding_factor_random:
+            for i in range(number_sellers):
+                self.bidding_factors.append(random.uniform(1.0, value))
+        if sampling == bidding_factor_constant:
+            for i in range(number_sellers):
+                self.bidding_factors.append(value)
 
     def calculate_bid(self, item):
         seller_id = item.seller.id
